@@ -21,6 +21,7 @@ jobs:
         host: ${{ secrets.LINUX_UBUNTU_SERVER_IP }}
         username: ${{ secrets.LINUX_UBUNTU_SERVER_USERNAME }}
         key: ${{ secrets.LINUX_UBUNTU_SERVER_SSH_KEY }}
+        password: ${{ secrets.LINUX_UBUNTU_SERVER_PASSWORD }}
         port: 22
         script: |
           cd /var/www/blade_travel_cli/
