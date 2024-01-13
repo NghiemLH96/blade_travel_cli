@@ -24,7 +24,7 @@ export default function Header() {
                         <div className='navLine'></div>
                     </div>
                     <div className='nav'>
-                        <span>Hỗ trợ</span>
+                        <span>Hỗ trợ1</span>
                         <div className='navLine'></div>
                     </div>
                 </section>
