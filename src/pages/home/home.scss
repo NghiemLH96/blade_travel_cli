@@ -17,11 +17,15 @@ header{
         width: 100%;
         height: 100px;
         backdrop-filter: blur(5px);
+        transition: all 1s;
+        &:hover{
+            background-color: black;
+        }
         .header_top_left{
             flex: 1;
             height: 100%;
             .logo{
-                height: 90%;
+                height: 80%;
                 padding: 0px 30px;
             }
         }
@@ -32,7 +36,7 @@ header{
             flex: 2;
             height: 100%;
             color: #FFFFFF;
-            font-size: 30px;
+            font-size: 25px;
             font-family: $navbarFont;
             .nav{
                 overflow: hidden;
@@ -54,6 +58,102 @@ header{
         .header_top_right{
             flex: 1;
             height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            column-gap: 20px;
+            .languageBtn{
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                width: 50px;
+                height: 100%;
+                .languageIcon{
+                    font-size: 25px;
+                    color: #FFFFFF;
+                    cursor: pointer;
+                }
+                &:hover{
+                    .langMenu_dropDown{
+                        display: flex;
+                    }
+                }
+                .langMenu_dropDown{
+                    display: none;
+                    flex-direction: column;
+                    position: absolute;
+                    width: 120px;
+                    height: auto;
+                    top:70%;
+                    right:15%;
+                    border-radius: 10px;
+                    background-color: #FFFFFF;
+                    overflow: hidden;
+                    span{
+                        padding: 10px 10px;
+                        cursor: pointer;
+                        &:hover{
+                            background-color: rgb(98, 98, 98);
+                            color: #FFFFFF;
+                        }
+                    }
+                }
+            }
+            .accountMenu{
+                display: flex;
+                align-items: center;
+                background-color: transparent;
+                width: 100px;
+                height: 100%;
+                cursor: pointer;
+                &:hover{
+                    .accountMenu_dropDown{
+                        display: flex;
+                    }
+                }
+                .accountMenu_btn{
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-evenly;
+                    border-radius: 100px;
+                    border: 2px #FFFFFF solid;
+                    width: 100%;
+                    height: 50px;
+                    .menuIcon{
+                        font-size: 25px;
+                        color: #FFFFFF;
+                    }
+                    .userAvatar{
+                        width: auto;
+                        height: 80%;
+                        border-radius: 50%;
+                    }
+                }
+                .accountMenu_dropDown{
+                    display: none;
+                    flex-direction: column;
+                    position: absolute;
+                    width: 180px;
+                    height: auto;
+                    margin: 15px;
+                    top:65%;
+                    right:8%;
+                    border-radius: 10px;
+                    background-color: #FFFFFF;
+                    overflow: hidden;
+                    &:hover{
+                        display: flex;
+                    }
+                    span{
+                        padding: 10px 10px;
+                        cursor: pointer;
+                        &:hover{
+                            background-color: rgb(98, 98, 98);
+                            color: #FFFFFF;
+                        }
+                    }
+                }
+            }
         }
     }
 }
