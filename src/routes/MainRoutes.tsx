@@ -2,7 +2,6 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import MainPage from '../pages/MainPage'
 import AuthenPage from '../pages/auth/AuthenPage'
 import Home from '../pages/home/Home'
-import IntroPage from '../pages/IntroPage'
 
 export default function MainRoutes() {
   return (
