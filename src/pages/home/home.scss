@@ -1,0 +1,59 @@
+@import url('https://fonts.googleapis.com/css2?family=Signika:wght@500&display=swap');
+$navbarFont: 'Signika', sans-serif;
+
+header{
+    position: relative;
+    .header_background{
+        width: 100%;
+        height: 100vh;
+        object-fit: cover;
+        object-position: 0px 80%;
+        position: absolute;
+    }
+    .header_top{
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        height: 100px;
+        backdrop-filter: blur(5px);
+        .header_top_left{
+            flex: 1;
+            height: 100%;
+            .logo{
+                height: 90%;
+                padding: 0px 30px;
+            }
+        }
+        .header_top_middle{
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            flex: 2;
+            height: 100%;
+            color: #FFFFFF;
+            font-size: 30px;
+            font-family: $navbarFont;
+            .nav{
+                overflow: hidden;
+                cursor: pointer;
+                .navLine{
+                    background-color: #FFFFFF;
+                    border-radius: 15px;
+                    height: 3px;
+                    transform: translateX(-100%);
+                    transition: all 0.5s;
+                }
+                &:hover{
+                    .navLine{
+                        transform: translateX(0)
+                    }
+                }
+            }
+        }
+        .header_top_right{
+            flex: 1;
+            height: 100%;
+        }
+    }
+}

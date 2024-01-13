@@ -1,8 +1,10 @@
+import MainRoutes from "./routes/MainRoutes"
+
 function App() {
 
   return (
     <>
-      App
+      <MainRoutes/>
     </>
   )
 }
