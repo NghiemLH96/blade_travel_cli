@@ -1,5 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Signika:wght@500&display=swap');
-$navbarFont: 'Signika', sans-serif;
+
 
 header{
     position: relative;
@@ -22,11 +21,13 @@ header{
             background-color: black;
         }
         .header_top_left{
+            display: flex;
+            align-items: center;
+            justify-content: center;
             flex: 1;
             height: 100%;
             .logo{
                 height: 80%;
-                padding: 0px 30px;
             }
         }
         .header_top_middle{
@@ -90,7 +91,7 @@ header{
                     background-color: #FFFFFF;
                     overflow: hidden;
                     span{
-                        padding: 10px 10px;
+                        padding: 15px;
                         cursor: pointer;
                         &:hover{
                             background-color: rgb(98, 98, 98);
@@ -145,7 +146,7 @@ header{
                         display: flex;
                     }
                     span{
-                        padding: 10px 10px;
+                        padding: 15px;
                         cursor: pointer;
                         &:hover{
                             background-color: rgb(98, 98, 98);
