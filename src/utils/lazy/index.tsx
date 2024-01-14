@@ -1,4 +1,4 @@
-import { Alert, Spin } from "antd";
+import { Spin } from "antd";
 import { lazy, Suspense } from "react";
 
 const lazyFn = (importFn: any) => {
