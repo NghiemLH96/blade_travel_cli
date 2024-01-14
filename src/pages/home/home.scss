@@ -37,7 +37,7 @@ header{
             flex: 2;
             height: 100%;
             color: #FFFFFF;
-            font-size: 25px;
+            font-size: $font_l;
             font-family: $navbarFont;
             .nav{
                 overflow: hidden;
@@ -58,7 +58,6 @@ header{
         }
         .header_top_right{
             flex: 1;
-            height: 100%;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -68,19 +67,13 @@ header{
                 justify-content: center;
                 align-items: center;
                 width: 50px;
-                height: 100%;
                 .languageIcon{
-                    font-size: 25px;
+                    font-size: $font_l;
                     color: #FFFFFF;
                     cursor: pointer;
                 }
-                &:hover{
-                    .langMenu_dropDown{
-                        display: flex;
-                    }
-                }
                 .langMenu_dropDown{
-                    display: none;
+                    display: flex;
                     flex-direction: column;
                     position: absolute;
                     width: 120px;
@@ -89,12 +82,21 @@ header{
                     right:15%;
                     border-radius: 10px;
                     background-color: #FFFFFF;
+                    opacity:0;
                     overflow: hidden;
+                    transition: all 0.5s;
+                    transform: translateY(-10px);
+                    pointer-events: none;
+                    &.active{
+                            opacity:1;
+                            transform: translateY(0px);
+                            pointer-events: all;
+                    }
                     span{
                         padding: 15px;
                         cursor: pointer;
                         &:hover{
-                            background-color: rgb(98, 98, 98);
+                            background-color: #FF385C;
                             color: #FFFFFF;
                         }
                     }
@@ -107,9 +109,11 @@ header{
                 width: 100px;
                 height: 100%;
                 cursor: pointer;
-                &:hover{
+                &.active{
                     .accountMenu_dropDown{
-                        display: flex;
+                        transform: translateY(0px);
+                        opacity: 1;
+                        pointer-events: all;
                     }
                 }
                 .accountMenu_btn{
@@ -121,7 +125,7 @@ header{
                     width: 100%;
                     height: 50px;
                     .menuIcon{
-                        font-size: 25px;
+                        font-size: $font_l;
                         color: #FFFFFF;
                     }
                     .userAvatar{
@@ -131,8 +135,9 @@ header{
                     }
                 }
                 .accountMenu_dropDown{
-                    display: none;
+                    display: flex;
                     flex-direction: column;
+                    opacity: 0;
                     position: absolute;
                     width: 180px;
                     height: auto;
@@ -141,15 +146,20 @@ header{
                     right:8%;
                     border-radius: 10px;
                     background-color: #FFFFFF;
+                    pointer-events: none;
                     overflow: hidden;
-                    &:hover{
-                        display: flex;
+                    transform: translateY(-10px);
+                    transition: all 1s;
+                    &.active{
+                        opacity:1;
+                        transform: translateY(0px);
+                        pointer-events: all;
                     }
                     span{
                         padding: 15px;
                         cursor: pointer;
                         &:hover{
-                            background-color: rgb(98, 98, 98);
+                            background-color: #FF385C;
                             color: #FFFFFF;
                         }
                     }
