@@ -104,6 +104,15 @@ export default function AuthenPage() {
     setOpen(false);
   };
 
+  //Validate data
+  const [ newUserDetail , setNewUserDetail ] = useState({
+    email:"",
+    password:"",
+    phone:""
+  })
+
+
+
   return (
     <section className="authPage_container">
       <Modal
@@ -127,7 +136,9 @@ export default function AuthenPage() {
             <form className="login_form" action="">
               <div className="inputField">
                 <label htmlFor="login_email">Email :</label>
-                <input id="login_email" name="login_email" type="email" />
+                <input id="login_email" name="login_email" type="email" onChange={(e)=>{
+                  
+                }} />
               </div>
               <div className="inputField">
                 <label htmlFor="login_password"> Mật Khẩu :</label>
