@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useNavigate, useParams } from "react-router-dom"
 import authImg from '@pics/authen.jpg'
 import logo from '@pics/logo_b.png'
@@ -105,13 +105,44 @@ export default function AuthenPage() {
   };
 
   //Validate data
-  const [ newUserDetail , setNewUserDetail ] = useState({
-    email:"",
-    password:"",
-    phone:""
+  const [newUserDetail, setNewUserDetail] = useState({
+    email: "",
+    password: "",
+    phone: ""
   })
+  const [emailField, setEmailField] = useState(false)
+  const [emailError, setEmailError] = useState("")
+  let validateEmail = {
+    isEmail: function (emailString: string) {
+      return /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(emailString)
+    }
+  }
 
+  const [passwordField, setPasswordField] = useState(false)
+  const [passwordError, setPasswordError] = useState("")
+  const [passVision , setPassVision ] = useState(false)
 
+  const [confirmPassField, setConfirmPassField] = useState(false)
+  const [confirmPassError, setConfirmPassError] = useState("")
+  const [confirmPassVision , setConfirmPassVision ] = useState(false)
+
+  const [phoneField, setPhoneField] = useState(false)
+  const [phoneError, setPhoneError] = useState("")
+
+  const [ nextStepBtn , setNextStepBtn ] = useState(false)
+useEffect(()=>{
+  console.log("passwordField",passwordField);
+  console.log("confirmPassField",confirmPassField);
+  console.log("phoneField",phoneField);
+  console.log("emailField",emailField);
+  if (emailField == true && passwordField == true && confirmPassField == true && phoneField == true) {
+    document.querySelector("#register_nextBtn")?.removeAttribute("disabled");
+    setNextStepBtn(true)
+  }else{
+    document.querySelector("#register_nextBtn")?.setAttribute("disabled","");
+    setNextStepBtn(false)
+  }
+},[emailField,passwordField,confirmPassField,phoneField])
 
   return (
     <section className="authPage_container">
@@ -136,9 +167,7 @@ export default function AuthenPage() {
             <form className="login_form" action="">
               <div className="inputField">
                 <label htmlFor="login_email">Email :</label>
-                <input id="login_email" name="login_email" type="email" onChange={(e)=>{
-                  
-                }} />
+                <input id="login_email" name="login_email" type="email" />
               </div>
               <div className="inputField">
                 <label htmlFor="login_password"> Mật Khẩu :</label>
@@ -164,23 +193,102 @@ export default function AuthenPage() {
               <form onSubmit={(e) => { e.preventDefault() }} className="register_form" action="">
                 <div className="inputField">
                   <label htmlFor="register_email"> Email :</label>
-                  <input id="register_email" name="register_email" type="text" />
+                  <input id="register_email" name="register_email" type="text" onChange={(e) => {
+                    console.log("1");
+                    
+                    if (e.target.value == "") {
+                      setEmailField(false)
+                      setNewUserDetail({...newUserDetail,email:e.target.value})
+                      setEmailError("Email không được để trống!")
+                    } else {
+                      if (!validateEmail.isEmail(e.target.value)) {
+                        setEmailField(false)
+                        setNewUserDetail({...newUserDetail,email:e.target.value})
+                        setEmailError("Email chưa đúng định dạng!")
+                      } else {
+                        setEmailField(true)
+                        setNewUserDetail({...newUserDetail,email:e.target.value})
+                        setEmailError("")
+                      }
+                    }
+                  }} />
+                  <p>{emailError}</p>
                 </div>
                 <div className="inputField">
                   <label htmlFor="register_pass"> Password :</label>
-                  <input id="register_pass" name="register_pass" type="password" />
+                  <span onClick={()=>{setPassVision(!passVision)}} className="material-symbols-outlined visionIcon">
+                    {passVision ? "visibility_off" : "visibility"}
+                  </span>
+                  <input id="register_pass" name="register_pass" type={passVision ? "text" : "password"} onChange={(e) => {
+                    if (e.target.value == "") {
+                      setPasswordField(false)
+                      setNewUserDetail({...newUserDetail,password:e.target.value})
+                      setPasswordError("Mật khẩu không được để trống!")
+                    } else {
+                      if (e.target.value.length > 16) {
+                        setPasswordField(false)
+                        setNewUserDetail({...newUserDetail,password:e.target.value})
+                        setPasswordError("Mật khẩu không quá 16 ký tự!")
+                      } else {
+                        setPasswordField(true)
+                        setNewUserDetail({...newUserDetail,password:e.target.value})
+                        setPasswordError("")
+                      }
+                    }
+                  }} />
+                  <p>{passwordError}</p>
                 </div>
                 <div className="inputField">
                   <label htmlFor="register_passConfirm"> Confirm Password :</label>
-                  <input id="register_passConfirm" name="register_passConfirm" type="text" />
+                  <span onClick={()=>{setConfirmPassVision(!confirmPassVision)}} className="material-symbols-outlined visionIcon">
+                    {confirmPassVision ? "visibility_off" : "visibility"}
+                  </span>
+                  <input id="register_passConfirm" name="register_passConfirm" type={confirmPassVision ? "text" : "password"} onChange={(e) => {
+                    if (e.target.value == "") {
+                      setConfirmPassField(false)
+                      setConfirmPassError("Xác nhận mật khẩu không được để trống!")
+                    } else {
+                      if (e.target.value != newUserDetail.password) {
+                        setConfirmPassField(false)
+                        setConfirmPassError("Mật khẩu không khớp!")
+                      } else {
+                        setConfirmPassField(true)
+                        setConfirmPassError("")
+                      }
+                    }
+                  }} />
+                  <p>{confirmPassError}</p>
                 </div>
                 <div className="inputField">
                   <label htmlFor="register_phone"> Phone :</label>
-                  <input id="register_phone" name="register_phone" type="text" />
+                  <input id="register_phone" name="register_phone" type="text" onChange={(e) => {
+                    if (e.target.value == "") {
+                      setPhoneField(false)
+                      setNewUserDetail({...newUserDetail,phone:e.target.value})
+                      setPhoneError("Số điện thoại không được để trống!")
+                    } else {
+                      if(isNaN(Number(e.target.value))){
+                        setPhoneField(false)
+                        setNewUserDetail({...newUserDetail,phone:e.target.value})
+                        setPhoneError("Số điện thoại không hợp lệ!")
+                      }else{
+                        if (e.target.value.length != 10) {
+                          setPhoneField(false)
+                          setNewUserDetail({...newUserDetail,phone:e.target.value})
+                          setPhoneError("Số điện thoại phải có 10 số!")
+                        }else {
+                          setPhoneField(true)
+                          setNewUserDetail({...newUserDetail,phone:e.target.value})
+                          setPhoneError("")
+                        }
+                      }
+                    }
+                  }}/>
+                  <p>{phoneError}</p>
                 </div>
                 <div className="btnField">
                   <button onClick={() => { document.querySelector(".authSite_right")?.classList.remove("active_register") }}>Quay lại đăng nhập</button>
-                  <button onClick={() => { document.querySelector(".authSite_right")?.classList.add("active_avatar") }}>Tiếp theo <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-arrow-right-circle" viewBox="0 0 16 16">
+                  <button id="register_nextBtn" className={nextStepBtn ? "" : "disabled"} onClick={() => { document.querySelector(".authSite_right")?.classList.add("active_avatar") }}>Tiếp theo <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-arrow-right-circle" viewBox="0 0 16 16">
                     <path fill-rule="evenodd" d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8m15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0M4.5 7.5a.5.5 0 0 0 0 1h5.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5z" />
                   </svg></button>
                 </div>
