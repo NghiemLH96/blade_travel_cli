@@ -32,7 +32,7 @@ jobs:
           . $HOME/.nvm/nvm.sh
           nvm use
           echo "tạo và cấu hình .env"
-          cp .env.exemple .env
+          cp .env.example .env
           sed -i 's/SERVER_HOST/${{ secrets.SERVER_HOST }}/g' .env
           echo "cài đặt nodemodules"
           npm ci
