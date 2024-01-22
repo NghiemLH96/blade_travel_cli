@@ -6,6 +6,7 @@ import './authPage.scss'
 import { message, Modal, Upload } from 'antd';
 import { LoadingOutlined, PlusOutlined } from '@ant-design/icons';
 import type { GetProp, UploadProps } from 'antd';
+import { apis } from "@/service/apis"
 
 export default function AuthenPage() {
   type FileType = Parameters<GetProp<UploadProps, 'beforeUpload'>>[0];
@@ -131,10 +132,6 @@ export default function AuthenPage() {
 
   const [ nextStepBtn , setNextStepBtn ] = useState(false)
 useEffect(()=>{
-  console.log("passwordField",passwordField);
-  console.log("confirmPassField",confirmPassField);
-  console.log("phoneField",phoneField);
-  console.log("emailField",emailField);
   if (emailField == true && passwordField == true && confirmPassField == true && phoneField == true) {
     document.querySelector("#register_nextBtn")?.removeAttribute("disabled");
     setNextStepBtn(true)
@@ -144,6 +141,16 @@ useEffect(()=>{
   }
 },[emailField,passwordField,confirmPassField,phoneField])
 
+  const handleRegister = async (e:React.SyntheticEvent) =>{
+    e.preventDefault();
+    const result = await apis.userApiModule.createNew(newUserDetail)
+    if (result.status == 200) {
+      
+    }
+  }
+
+  console.log(import.meta.env.VITE_PROTOCOL+import.meta.env.VITE_HOST+":"+import.meta.env.VITE_PORT+"/v1/api/users");
+  
   return (
     <section className="authPage_container">
       <Modal
@@ -190,12 +197,10 @@ useEffect(()=>{
           <div className="register_container">
             <div className="register_fstStep">
               <h2>Đăng Ký</h2>
-              <form onSubmit={(e) => { e.preventDefault() }} className="register_form" action="">
+              <form onSubmit={(e:React.SyntheticEvent) => { handleRegister(e) }} className="register_form" action="">
                 <div className="inputField">
                   <label htmlFor="register_email"> Email :</label>
                   <input id="register_email" name="register_email" type="text" onChange={(e) => {
-                    console.log("1");
-                    
                     if (e.target.value == "") {
                       setEmailField(false)
                       setNewUserDetail({...newUserDetail,email:e.target.value})
@@ -212,14 +217,14 @@ useEffect(()=>{
                       }
                     }
                   }} />
-                  <p>{emailError}</p>
+                  <p className="errorText">{emailError}</p>
                 </div>
                 <div className="inputField">
                   <label htmlFor="register_pass"> Password :</label>
                   <span onClick={()=>{setPassVision(!passVision)}} className="material-symbols-outlined visionIcon">
                     {passVision ? "visibility_off" : "visibility"}
                   </span>
-                  <input id="register_pass" name="register_pass" type={passVision ? "text" : "password"} onChange={(e) => {
+                  <input id="register_pass" name="register_pass" minLength={8} maxLength={16} type={passVision ? "text" : "password"} onChange={(e) => {
                     if (e.target.value == "") {
                       setPasswordField(false)
                       setNewUserDetail({...newUserDetail,password:e.target.value})
@@ -236,32 +241,38 @@ useEffect(()=>{
                       }
                     }
                   }} />
-                  <p>{passwordError}</p>
+                  <p className="errorText">{passwordError}</p>
                 </div>
                 <div className="inputField">
                   <label htmlFor="register_passConfirm"> Confirm Password :</label>
                   <span onClick={()=>{setConfirmPassVision(!confirmPassVision)}} className="material-symbols-outlined visionIcon">
                     {confirmPassVision ? "visibility_off" : "visibility"}
                   </span>
-                  <input id="register_passConfirm" name="register_passConfirm" type={confirmPassVision ? "text" : "password"} onChange={(e) => {
+                  <input id="register_passConfirm" name="register_passConfirm" minLength={8} maxLength={16} type={confirmPassVision ? "text" : "password"} onChange={(e) => {
                     if (e.target.value == "") {
                       setConfirmPassField(false)
                       setConfirmPassError("Xác nhận mật khẩu không được để trống!")
                     } else {
-                      if (e.target.value != newUserDetail.password) {
-                        setConfirmPassField(false)
-                        setConfirmPassError("Mật khẩu không khớp!")
-                      } else {
+                      if (e.target.value.length == newUserDetail.password.length) {
+                        if (e.target.value != newUserDetail.password) {
+                          setConfirmPassField(false)
+                          setConfirmPassError("Mật khẩu không khớp!")
+                        } else {
+                          setConfirmPassField(true)
+                          setConfirmPassError("")
+                        }
+                      }
+                      else {
                         setConfirmPassField(true)
                         setConfirmPassError("")
                       }
                     }
                   }} />
-                  <p>{confirmPassError}</p>
+                  <p className="errorText">{confirmPassError}</p>
                 </div>
                 <div className="inputField">
                   <label htmlFor="register_phone"> Phone :</label>
-                  <input id="register_phone" name="register_phone" type="text" onChange={(e) => {
+                  <input id="register_phone" name="register_phone" maxLength={10} minLength={10} type="text" onChange={(e) => {
                     if (e.target.value == "") {
                       setPhoneField(false)
                       setNewUserDetail({...newUserDetail,phone:e.target.value})
@@ -284,7 +295,7 @@ useEffect(()=>{
                       }
                     }
                   }}/>
-                  <p>{phoneError}</p>
+                  <p className="errorText">{phoneError}</p>
                 </div>
                 <div className="btnField">
                   <button onClick={() => { document.querySelector(".authSite_right")?.classList.remove("active_register") }}>Quay lại đăng nhập</button>

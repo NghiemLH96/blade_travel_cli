@@ -31,4 +31,4 @@ jobs:
           nvm use
           npm ci
           npm run build
-          curl -X POST -H "Content-Type: application/json" -H "Authorization:${{ secrets.DISCORD_AUTHORIZATION }}" -d '{"content":"Dự án node js đã deploy thành công link: https://travel.myblade.io.vn/ "}' https://discord.com/api/v9/channels/1155491640316801148/messages
+          curl -X POST -H "Content-Type: application/json" -H "Authorization:${{ secrets.DISCORD_AUTHORIZATION }}" -d '{"content":"Dự án node js đã deploy thành công link: https://travel.myblade.io.vn/ "}' https://discord.com/api/v9/channels/1197895866577600572/messages
