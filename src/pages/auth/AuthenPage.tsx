@@ -3,83 +3,21 @@ import { useNavigate, useParams } from "react-router-dom"
 import authImg from '@pics/authen.jpg'
 import logo from '@pics/logo_b.png'
 import './authPage.scss'
-import { message, Modal, Upload } from 'antd';
-import { LoadingOutlined, PlusOutlined } from '@ant-design/icons';
-import type { GetProp, UploadProps } from 'antd';
+import { message, Modal} from 'antd';
 import { apis } from "@/service/apis"
 
 export default function AuthenPage() {
-  type FileType = Parameters<GetProp<UploadProps, 'beforeUpload'>>[0];
-
-  const getBase64 = (img: FileType, callback: (url: string) => void) => {
-    const reader = new FileReader();
-    reader.addEventListener('load', () => callback(reader.result as string));
-    reader.readAsDataURL(img as any);
+  // ANTD components
+  // >Error Message
+  const [messageApi, contextHolder] = message.useMessage();
+  const errorMessage = (errorText: string) => {
+    messageApi.open({
+      type: 'error',
+      content: errorText,
+    });
   };
-
-  const beforeUpload = (file: FileType) => {
-    const isJpgOrPng = (file as any).type === 'image/jpeg' || (file as any).type === 'image/png';
-    if (!isJpgOrPng) {
-      message.error('You can only upload JPG/PNG file!');
-    }
-    const isLt2M = (file as any).size / 1024 / 1024 < 2;
-    if (!isLt2M) {
-      message.error('Image must smaller than 2MB!');
-    }
-    return isJpgOrPng && isLt2M;
-  };
-
-  const [loading, setLoading] = useState(false);
-  const [imageUrl, setImageUrl] = useState<string>();
-
-  const handleChange: UploadProps['onChange'] = (info) => {
-    if (info.file.status === 'uploading') {
-      setLoading(true);
-      return;
-    }
-    if (info.file.status === 'done') {
-      // Get this url from response in real world.
-      getBase64(info.file.originFileObj as FileType, (url) => {
-        setLoading(false);
-        setImageUrl(url);
-      });
-    }
-  };
-
-  const uploadButton = (
-    <button style={{ border: 0, background: 'none' }} type="button">
-      {loading ? <LoadingOutlined /> : <PlusOutlined />}
-      <div style={{ marginTop: 8 }}>Upload</div>
-    </button>
-  );
-
-
-  const props: UploadProps = {
-    name: 'file',
-    action: 'https://run.mocky.io/v3/435e224c-44fb-4773-9faf-380c5e6a2188',
-    headers: {
-      authorization: 'authorization-text',
-    },
-    onChange(info) {
-      if (info.file.status !== 'uploading') {
-        console.log(info.file, info.fileList);
-      }
-      if (info.file.status === 'done') {
-        message.success(`${info.file.name} file uploaded successfully`);
-      } else if (info.file.status === 'error') {
-        message.error(`${info.file.name} file upload failed.`);
-      }
-    },
-    progress: {
-      strokeColor: {
-        '0%': '#108ee9',
-        '100%': '#87d068',
-      },
-      strokeWidth: 3,
-      format: (percent) => percent && `${parseFloat(percent.toFixed(2))}%`,
-    },
-  };
-
+  // >
+  //Kiểm tra địa chỉ truy cập & Chuyển trang theo Query
   const navigate = useNavigate()
   const { pageFn } = useParams()
   useEffect(() => {
@@ -87,7 +25,6 @@ export default function AuthenPage() {
       showModal()
     }
   }, [])
-
 
   const [open, setOpen] = useState(false);
 
@@ -106,53 +43,151 @@ export default function AuthenPage() {
   };
 
   //Validate data
-  const [newUserDetail, setNewUserDetail] = useState({
-    email: "",
-    password: "",
-    phone: ""
-  })
-  const [emailField, setEmailField] = useState(false)
   const [emailError, setEmailError] = useState("")
-  let validateEmail = {
-    isEmail: function (emailString: string) {
-      return /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(emailString)
-    }
-  }
-
-  const [passwordField, setPasswordField] = useState(false)
+  const [emailValue , setEmailValue] = useState("")
   const [passwordError, setPasswordError] = useState("")
-  const [passVision , setPassVision ] = useState(false)
-
-  const [confirmPassField, setConfirmPassField] = useState(false)
+  const [passValue , setPassValue] = useState("")
+  const [passVision, setPassVision] = useState(false)
   const [confirmPassError, setConfirmPassError] = useState("")
-  const [confirmPassVision , setConfirmPassVision ] = useState(false)
-
-  const [phoneField, setPhoneField] = useState(false)
+  const [confirmPassVision, setConfirmPassVision] = useState(false)
+  const [phoneValue , setPhoneValue] = useState("")
   const [phoneError, setPhoneError] = useState("")
 
-  const [ nextStepBtn , setNextStepBtn ] = useState(false)
-useEffect(()=>{
-  if (emailField == true && passwordField == true && confirmPassField == true && phoneField == true) {
-    document.querySelector("#register_nextBtn")?.removeAttribute("disabled");
-    setNextStepBtn(true)
-  }else{
-    document.querySelector("#register_nextBtn")?.setAttribute("disabled","");
-    setNextStepBtn(false)
-  }
-},[emailField,passwordField,confirmPassField,phoneField])
-
-  const handleRegister = async (e:React.SyntheticEvent) =>{
+  // Bước kiểm tra dữ liệu nhập lúc đăng ký
+  const firstStepVerify = async (e: React.SyntheticEvent) => {
+    //vô hiệu hoá tính năng reload của Form.Event
     e.preventDefault();
-    const result = await apis.userApiModule.createNew(newUserDetail)
-    if (result.status == 200) {
-      
+
+    let verifyFlag = true;
+    //Kiểm tra định dạng Email
+    let validateEmail = {
+      isEmail: function (emailString: string) {
+        return /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(emailString)
+      }
+    }
+
+    if ((e.target as any).register_email.value == "") {
+      verifyFlag = false;
+      setEmailValue((e.target as any).register_email.value )
+      setEmailError("Email không được để trống!")
+    } else {
+      if (!validateEmail.isEmail((e.target as any).register_email.value)) {
+        verifyFlag = false;
+        setEmailValue((e.target as any).register_email.value )
+        setEmailError("Email chưa đúng định dạng!")
+      } else {
+        setEmailValue((e.target as any).register_email.value )
+        setEmailError("")
+      }
+    }
+
+    //Kiểm tra định dạng Mật Khẩu
+    if ((e.target as any).register_pass.value == "") {
+      verifyFlag = false;
+      setPassValue((e.target as any).register_pass.value )
+      setPasswordError("Mật khẩu không được để trống!")
+    } else {
+      if ((e.target as any).register_pass.value.length < 8) {
+        verifyFlag = false;
+        setPassValue((e.target as any).register_pass.value )
+        setPasswordError("Mật khẩu không ít hơn 8 ký tự!")
+      } else {
+
+        if ((e.target as any).register_pass.value.length > 16) {
+          verifyFlag = false;
+          setPassValue((e.target as any).register_pass.value )
+          setPasswordError("Mật khẩu không quá 16 ký tự!")
+        } else {
+          setPassValue((e.target as any).register_pass.value )
+          setPasswordError("")
+        }
+      }
+    }
+
+    //Kiểm tra xác nhận mật khẩu
+    if ((e.target as any).register_passConfirm.value == "") {
+      verifyFlag = false;
+      setConfirmPassError("Xác nhận mật khẩu không được để trống!")
+    } else {
+      if ((e.target as any).register_passConfirm.value != (e.target as any).register_pass.value) {
+        verifyFlag = false;
+        setConfirmPassError("Mật khẩu không khớp!")
+      } else {
+        setConfirmPassError("")
+      }
+    }
+
+    //Kiểm tra định dạng số điện thoại
+    if ((e.target as any).register_phone.value == "") {
+      verifyFlag = false;
+      setPhoneValue((e.target as any).register_phone.value )
+      setPhoneError("Số điện thoại không được để trống!")
+    } else {
+      if (isNaN(Number((e.target as any).register_phone.value))) {
+        verifyFlag = false;
+        setPhoneValue((e.target as any).register_phone.value )
+        setPhoneError("Số điện thoại không hợp lệ! (number only)")
+      } else {
+        if ((e.target as any).register_phone.value.length != 10) {
+          verifyFlag = false;
+          setPhoneValue((e.target as any).register_phone.value )
+          setPhoneError("Số điện thoại chuẩn phải có 10 số!")
+        } else {
+          setPhoneValue((e.target as any).register_phone.value )
+          setPhoneError("")
+        }
+      }
+    }
+
+    //Nếu dữ liệu k đúng định dạng thì đình chỉ hàm
+    if (!verifyFlag) {
+      return
+    }
+
+    //Nếu dữ liệu đúng định dạng thì kiểm tra dữ liệu đã từng đăng ký hay chưa
+    const checkExistData = {
+      email: emailValue,
+      phone: phoneValue
+    }
+
+    try {
+      const result = await apis.userApiModule.checkExist(checkExistData)
+
+      if (result.status == 200) {
+        document.querySelector(".authSite_right")?.classList.add("active_avatar")
+      } else {
+        errorMessage(result.data.message)
+        return
+      }
+    } catch (error) {
+      errorMessage(String(error))
+      return
     }
   }
 
-  console.log(import.meta.env.VITE_PROTOCOL+import.meta.env.VITE_HOST+":"+import.meta.env.VITE_PORT+"/v1/api/users");
-  
+  const [avatarFile, setAvatarFile] = useState(null);
+
+  const handleRegister = async (type: string) => {
+    const newUserDetail = {
+      email:emailValue,
+      password:passValue,
+      phone:phoneValue
+    }
+    if (type == "skip") {
+      let userFormData = new FormData()
+      userFormData.append("data", JSON.stringify(newUserDetail))
+      const result = await apis.userApiModule.createNew(userFormData)
+      if (result.status == 200) {
+        document.querySelector(".authSite_right")?.classList.add("active_success")
+      }else{
+        errorMessage("lỗi gì đó")
+      }
+    }
+  }
+
   return (
     <section className="authPage_container">
+      {contextHolder}
       <Modal
         title="Lỗi địa chỉ truy cập"
         open={open}
@@ -197,109 +232,44 @@ useEffect(()=>{
           <div className="register_container">
             <div className="register_fstStep">
               <h2>Đăng Ký</h2>
-              <form onSubmit={(e:React.SyntheticEvent) => { handleRegister(e) }} className="register_form" action="">
+              <form onSubmit={(e: React.SyntheticEvent) => { firstStepVerify(e) }} className="register_form" action="">
                 <div className="inputField">
                   <label htmlFor="register_email"> Email :</label>
-                  <input id="register_email" name="register_email" type="text" onChange={(e) => {
-                    if (e.target.value == "") {
-                      setEmailField(false)
-                      setNewUserDetail({...newUserDetail,email:e.target.value})
-                      setEmailError("Email không được để trống!")
-                    } else {
-                      if (!validateEmail.isEmail(e.target.value)) {
-                        setEmailField(false)
-                        setNewUserDetail({...newUserDetail,email:e.target.value})
-                        setEmailError("Email chưa đúng định dạng!")
-                      } else {
-                        setEmailField(true)
-                        setNewUserDetail({...newUserDetail,email:e.target.value})
-                        setEmailError("")
-                      }
-                    }
+                  <input id="register_email" name="register_email" type="text" onChange={() => {
+                    setEmailError("")
                   }} />
                   <p className="errorText">{emailError}</p>
                 </div>
                 <div className="inputField">
                   <label htmlFor="register_pass"> Password :</label>
-                  <span onClick={()=>{setPassVision(!passVision)}} className="material-symbols-outlined visionIcon">
+                  <span onClick={() => { setPassVision(!passVision) }} className="material-symbols-outlined visionIcon">
                     {passVision ? "visibility_off" : "visibility"}
                   </span>
-                  <input id="register_pass" name="register_pass" minLength={8} maxLength={16} type={passVision ? "text" : "password"} onChange={(e) => {
-                    if (e.target.value == "") {
-                      setPasswordField(false)
-                      setNewUserDetail({...newUserDetail,password:e.target.value})
-                      setPasswordError("Mật khẩu không được để trống!")
-                    } else {
-                      if (e.target.value.length > 16) {
-                        setPasswordField(false)
-                        setNewUserDetail({...newUserDetail,password:e.target.value})
-                        setPasswordError("Mật khẩu không quá 16 ký tự!")
-                      } else {
-                        setPasswordField(true)
-                        setNewUserDetail({...newUserDetail,password:e.target.value})
-                        setPasswordError("")
-                      }
-                    }
-                  }} />
+                  <input id="register_pass" name="register_pass" type={passVision ? "text" : "password"} onChange={()=>{
+                    setPasswordError("")
+                  }}/>
                   <p className="errorText">{passwordError}</p>
                 </div>
                 <div className="inputField">
                   <label htmlFor="register_passConfirm"> Confirm Password :</label>
-                  <span onClick={()=>{setConfirmPassVision(!confirmPassVision)}} className="material-symbols-outlined visionIcon">
+                  <span onClick={() => { setConfirmPassVision(!confirmPassVision) }} className="material-symbols-outlined visionIcon">
                     {confirmPassVision ? "visibility_off" : "visibility"}
                   </span>
-                  <input id="register_passConfirm" name="register_passConfirm" minLength={8} maxLength={16} type={confirmPassVision ? "text" : "password"} onChange={(e) => {
-                    if (e.target.value == "") {
-                      setConfirmPassField(false)
-                      setConfirmPassError("Xác nhận mật khẩu không được để trống!")
-                    } else {
-                      if (e.target.value.length == newUserDetail.password.length) {
-                        if (e.target.value != newUserDetail.password) {
-                          setConfirmPassField(false)
-                          setConfirmPassError("Mật khẩu không khớp!")
-                        } else {
-                          setConfirmPassField(true)
-                          setConfirmPassError("")
-                        }
-                      }
-                      else {
-                        setConfirmPassField(true)
-                        setConfirmPassError("")
-                      }
-                    }
+                  <input id="register_passConfirm" name="register_passConfirm" type={confirmPassVision ? "text" : "password"} onChange={() => {
+                    setConfirmPassError("")
                   }} />
                   <p className="errorText">{confirmPassError}</p>
                 </div>
                 <div className="inputField">
                   <label htmlFor="register_phone"> Phone :</label>
-                  <input id="register_phone" name="register_phone" maxLength={10} minLength={10} type="text" onChange={(e) => {
-                    if (e.target.value == "") {
-                      setPhoneField(false)
-                      setNewUserDetail({...newUserDetail,phone:e.target.value})
-                      setPhoneError("Số điện thoại không được để trống!")
-                    } else {
-                      if(isNaN(Number(e.target.value))){
-                        setPhoneField(false)
-                        setNewUserDetail({...newUserDetail,phone:e.target.value})
-                        setPhoneError("Số điện thoại không hợp lệ!")
-                      }else{
-                        if (e.target.value.length != 10) {
-                          setPhoneField(false)
-                          setNewUserDetail({...newUserDetail,phone:e.target.value})
-                          setPhoneError("Số điện thoại phải có 10 số!")
-                        }else {
-                          setPhoneField(true)
-                          setNewUserDetail({...newUserDetail,phone:e.target.value})
-                          setPhoneError("")
-                        }
-                      }
-                    }
-                  }}/>
+                  <input id="register_phone" name="register_phone" type="text" onChange={() => {
+                    setPhoneError("")
+                  }} />
                   <p className="errorText">{phoneError}</p>
                 </div>
                 <div className="btnField">
                   <button onClick={() => { document.querySelector(".authSite_right")?.classList.remove("active_register") }}>Quay lại đăng nhập</button>
-                  <button id="register_nextBtn" className={nextStepBtn ? "" : "disabled"} onClick={() => { document.querySelector(".authSite_right")?.classList.add("active_avatar") }}>Tiếp theo <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-arrow-right-circle" viewBox="0 0 16 16">
+                  <button type="submit" id="register_nextBtn">Tiếp theo <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-arrow-right-circle" viewBox="0 0 16 16">
                     <path fill-rule="evenodd" d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8m15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0M4.5 7.5a.5.5 0 0 0 0 1h5.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5z" />
                   </svg></button>
                 </div>
@@ -307,26 +277,24 @@ useEffect(()=>{
             </div>
             <div className="register_sndStep">
               <h2>Avatar</h2>
-              <div>
-                <Upload
-                  {...props}
-                  maxCount={1}
-                  name="avatar"
-                  listType="picture-card"
-                  className="avatar-uploader"
-                  showUploadList={false}
-                  action="https://run.mocky.io/v3/435e224c-44fb-4773-9faf-380c5e6a2188"
-                  beforeUpload={beforeUpload}
-                  onChange={handleChange}
-                >
-                  {imageUrl ? <img src={imageUrl} alt="avatar" style={{ width: '100%' }} /> : uploadButton}
-                </Upload>
+              <div className="uploadAvatar">
+                <img className="showAvatar" src="https://cdn.vectorstock.com/i/preview-1x/66/14/default-avatar-photo-placeholder-profile-picture-vector-21806614.jpg"></img>
+                <input onChange={(e) => {
+                  setAvatarFile((e.target as any).files[0])
+                  console.log((e.target as any).files[0]);
+                }} type="file" />
               </div>
               <div className="btnField">
                 <button onClick={() => { document.querySelector(".authSite_right")?.classList.remove("active_avatar") }}>Quay lại đăng nhập</button>
-                <button onClick={() => { document.querySelector(".authSite_right")?.classList.add("active_success") }}>Tiếp theo <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-arrow-right-circle" viewBox="0 0 16 16">
-                  <path fill-rule="evenodd" d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8m15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0M4.5 7.5a.5.5 0 0 0 0 1h5.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5z" />
-                </svg></button>
+                {avatarFile ?
+                  <button onClick={() => { handleRegister("upload")/**/ }}> Đăng ký <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-arrow-right-circle" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8m15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0M4.5 7.5a.5.5 0 0 0 0 1h5.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5z" />
+                  </svg></button>
+                  :
+                  <button onClick={() => { handleRegister("skip")/*document.querySelector(".authSite_right")?.classList.add("active_success")*/  }}> Bỏ qua <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-arrow-right-circle" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8m15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0M4.5 7.5a.5.5 0 0 0 0 1h5.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5z" />
+                  </svg></button>
+                }
               </div>
             </div>
             <div className="register_success">
