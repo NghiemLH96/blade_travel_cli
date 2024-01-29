@@ -1,9 +1,9 @@
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { useNavigate, useParams } from "react-router-dom"
 import authImg from '@pics/authen.jpg'
 import logo from '@pics/logo_b.png'
 import './authPage.scss'
-import { message, Modal} from 'antd';
+import { message } from 'antd';
 import { apis } from "@/service/apis"
 
 export default function AuthenPage() {
@@ -17,40 +17,19 @@ export default function AuthenPage() {
     });
   };
   // >
-  //Kiểm tra địa chỉ truy cập & Chuyển trang theo Query
   const navigate = useNavigate()
   const { pageFn } = useParams()
-  useEffect(() => {
-    if (!(pageFn == "login" || pageFn == "business-login" || pageFn == "admin-login")) {
-      showModal()
-    }
-  }, [])
 
-  const [open, setOpen] = useState(false);
-
-  const showModal = () => {
-    setOpen(true);
-  };
-
-  const handleOk = () => {
-    navigate("/auth/login")
-    setOpen(false);
-  };
-
-  const handleCancel = () => {
-    navigate("/")
-    setOpen(false);
-  };
 
   //Validate data
   const [emailError, setEmailError] = useState("")
-  const [emailValue , setEmailValue] = useState("")
+  const [emailValue, setEmailValue] = useState("")
   const [passwordError, setPasswordError] = useState("")
-  const [passValue , setPassValue] = useState("")
+  const [passValue, setPassValue] = useState("")
   const [passVision, setPassVision] = useState(false)
   const [confirmPassError, setConfirmPassError] = useState("")
   const [confirmPassVision, setConfirmPassVision] = useState(false)
-  const [phoneValue , setPhoneValue] = useState("")
+  const [phoneValue, setPhoneValue] = useState("")
   const [phoneError, setPhoneError] = useState("")
 
   // Bước kiểm tra dữ liệu nhập lúc đăng ký
@@ -68,15 +47,15 @@ export default function AuthenPage() {
 
     if ((e.target as any).register_email.value == "") {
       verifyFlag = false;
-      setEmailValue((e.target as any).register_email.value )
+      setEmailValue((e.target as any).register_email.value)
       setEmailError("Email không được để trống!")
     } else {
       if (!validateEmail.isEmail((e.target as any).register_email.value)) {
         verifyFlag = false;
-        setEmailValue((e.target as any).register_email.value )
+        setEmailValue((e.target as any).register_email.value)
         setEmailError("Email chưa đúng định dạng!")
       } else {
-        setEmailValue((e.target as any).register_email.value )
+        setEmailValue((e.target as any).register_email.value)
         setEmailError("")
       }
     }
@@ -84,21 +63,21 @@ export default function AuthenPage() {
     //Kiểm tra định dạng Mật Khẩu
     if ((e.target as any).register_pass.value == "") {
       verifyFlag = false;
-      setPassValue((e.target as any).register_pass.value )
+      setPassValue((e.target as any).register_pass.value)
       setPasswordError("Mật khẩu không được để trống!")
     } else {
       if ((e.target as any).register_pass.value.length < 8) {
         verifyFlag = false;
-        setPassValue((e.target as any).register_pass.value )
+        setPassValue((e.target as any).register_pass.value)
         setPasswordError("Mật khẩu không ít hơn 8 ký tự!")
       } else {
 
         if ((e.target as any).register_pass.value.length > 16) {
           verifyFlag = false;
-          setPassValue((e.target as any).register_pass.value )
+          setPassValue((e.target as any).register_pass.value)
           setPasswordError("Mật khẩu không quá 16 ký tự!")
         } else {
-          setPassValue((e.target as any).register_pass.value )
+          setPassValue((e.target as any).register_pass.value)
           setPasswordError("")
         }
       }
@@ -120,20 +99,20 @@ export default function AuthenPage() {
     //Kiểm tra định dạng số điện thoại
     if ((e.target as any).register_phone.value == "") {
       verifyFlag = false;
-      setPhoneValue((e.target as any).register_phone.value )
+      setPhoneValue((e.target as any).register_phone.value)
       setPhoneError("Số điện thoại không được để trống!")
     } else {
       if (isNaN(Number((e.target as any).register_phone.value))) {
         verifyFlag = false;
-        setPhoneValue((e.target as any).register_phone.value )
+        setPhoneValue((e.target as any).register_phone.value)
         setPhoneError("Số điện thoại không hợp lệ! (number only)")
       } else {
         if ((e.target as any).register_phone.value.length != 10) {
           verifyFlag = false;
-          setPhoneValue((e.target as any).register_phone.value )
+          setPhoneValue((e.target as any).register_phone.value)
           setPhoneError("Số điện thoại chuẩn phải có 10 số!")
         } else {
-          setPhoneValue((e.target as any).register_phone.value )
+          setPhoneValue((e.target as any).register_phone.value)
           setPhoneError("")
         }
       }
@@ -166,41 +145,30 @@ export default function AuthenPage() {
   }
 
   const [avatarFile, setAvatarFile] = useState(null);
-
-  const handleRegister = async (type: string) => {
+  //Đăng ký
+  const handleRegister = async () => {
     const newUserDetail = {
-      email:emailValue,
-      password:passValue,
-      phone:phoneValue
+      email: emailValue,
+      password: passValue,
+      phone: phoneValue
     }
-    console.log(newUserDetail);
-    
-    if (type == "skip") {
-      let userFormData = new FormData();
-      userFormData.append("data", JSON.stringify(newUserDetail))
-      const result = await apis.userApiModule.createNew(userFormData)
 
-      if (result.status == 200) {
-        document.querySelector(".authSite_right")?.classList.add("active_success")
-      }else{
-        errorMessage(result.data.message)
-      }
+    let userFormData = new FormData();
+    userFormData.append("data", JSON.stringify(newUserDetail))
+    userFormData.append("avatar", avatarFile as any)
+    const result = await apis.userApiModule.createNew(userFormData)
+    if (result.status == 200) {
+      document.querySelector(".authSite_right")?.classList.add("active_success")
+    } else {
+      errorMessage(result.data.message)
     }
   }
+  /*********************************************************************************************************/
+  //Đăng nhập
 
   return (
     <section className="authPage_container">
       {contextHolder}
-      <Modal
-        title="Lỗi địa chỉ truy cập"
-        open={open}
-        onOk={handleOk}
-        okText="Qua trang đăng nhập"
-        cancelText="Trở về trang chủ"
-        onCancel={handleCancel}
-      >
-        <p>Địa chỉ truy cập không chính xác!</p>
-      </Modal>
       <div className="authSite_container">
         <div className="authSite_left">
           <img className="authSite_logo" src={logo} alt="" />
@@ -219,18 +187,17 @@ export default function AuthenPage() {
                 <input id="login_password" name="login_password" type="password" />
               </div>
               <div className="optionField">
-                <span>{pageFn == "login" && "Quên mật khẩu"}</span>
-                {pageFn == "login" && <p>Vẫn chưa có tài khoản? <span onClick={() => { document.querySelector(".authSite_right")?.classList.add("active_register") }}>Đăng ký ngay</span> </p>}
+                <span>Quên mật khẩu</span>
+                <p>Vẫn chưa có tài khoản? <span onClick={() => { document.querySelector(".authSite_right")?.classList.add("active_register") }}>Đăng ký ngay</span> </p>
               </div>
               <button>Đăng Nhập</button>
             </form>
-            {pageFn == "login" && <button className="login_socialMedia">
+            <button className="login_socialMedia">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-google social_icon" viewBox="0 0 16 16">
                 <path d="M15.545 6.558a9.4 9.4 0 0 1 .139 1.626c0 2.434-.87 4.492-2.384 5.885h.002C11.978 15.292 10.158 16 8 16A8 8 0 1 1 8 0a7.7 7.7 0 0 1 5.352 2.082l-2.284 2.284A4.35 4.35 0 0 0 8 3.166c-2.087 0-3.86 1.408-4.492 3.304a4.8 4.8 0 0 0 0 3.063h.003c.635 1.893 2.405 3.301 4.492 3.301 1.078 0 2.004-.276 2.722-.764h-.003a3.7 3.7 0 0 0 1.599-2.431H8v-3.08z" />
               </svg>
               <span>Đăng nhập bằng tài khoản Google</span>
             </button>
-            }
           </div>
           <div className="register_container">
             <div className="register_fstStep">
@@ -248,9 +215,9 @@ export default function AuthenPage() {
                   <span onClick={() => { setPassVision(!passVision) }} className="material-symbols-outlined visionIcon">
                     {passVision ? "visibility_off" : "visibility"}
                   </span>
-                  <input id="register_pass" name="register_pass" type={passVision ? "text" : "password"} onChange={()=>{
+                  <input id="register_pass" name="register_pass" type={passVision ? "text" : "password"} onChange={() => {
                     setPasswordError("")
-                  }}/>
+                  }} />
                   <p className="errorText">{passwordError}</p>
                 </div>
                 <div className="inputField">
@@ -281,23 +248,16 @@ export default function AuthenPage() {
             <div className="register_sndStep">
               <h2>Avatar</h2>
               <div className="uploadAvatar">
-                <img className="showAvatar" src="https://cdn.vectorstock.com/i/preview-1x/66/14/default-avatar-photo-placeholder-profile-picture-vector-21806614.jpg"></img>
+                <img className="showAvatar" src={avatarFile ? URL.createObjectURL(avatarFile) : "https://cdn.vectorstock.com/i/preview-1x/66/14/default-avatar-photo-placeholder-profile-picture-vector-21806614.jpg"}></img>
                 <input onChange={(e) => {
                   setAvatarFile((e.target as any).files[0])
-                  console.log((e.target as any).files[0]);
                 }} type="file" />
               </div>
               <div className="btnField">
-                <button onClick={() => { document.querySelector(".authSite_right")?.classList.remove("active_avatar") }}>Quay lại đăng nhập</button>
-                {avatarFile ?
-                  <button onClick={() => { handleRegister("upload")/**/ }}> Đăng ký <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-arrow-right-circle" viewBox="0 0 16 16">
-                    <path fill-rule="evenodd" d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8m15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0M4.5 7.5a.5.5 0 0 0 0 1h5.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5z" />
-                  </svg></button>
-                  :
-                  <button onClick={() => { handleRegister("skip")/*document.querySelector(".authSite_right")?.classList.add("active_success")*/  }}> Bỏ qua <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-arrow-right-circle" viewBox="0 0 16 16">
-                    <path fill-rule="evenodd" d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8m15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0M4.5 7.5a.5.5 0 0 0 0 1h5.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5z" />
-                  </svg></button>
-                }
+                <button onClick={() => { document.querySelector(".authSite_right")?.classList.remove("active_avatar") }}>Quay lại</button>
+                <button onClick={() => { handleRegister() }}>{avatarFile ? "Đăng ký" : "Bỏ qua"} <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-arrow-right-circle" viewBox="0 0 16 16">
+                  <path fill-rule="evenodd" d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8m15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0M4.5 7.5a.5.5 0 0 0 0 1h5.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5z" />
+                </svg></button>
               </div>
             </div>
             <div className="register_success">

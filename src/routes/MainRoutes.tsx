@@ -10,8 +10,7 @@ export default function MainRoutes() {
             <Route path='/' element={utils.lazyFn(()=>import('@pages/MainPage'))()}>
                 <Route path='' element={<Home/>}></Route>
             </Route>
-            <Route path={'/auth/:pageFn'} element={<AuthenPage/>}></Route>
-            <Route path={'/business-login'} element={<AuthenPage/>}></Route>
+            <Route path={'/auth'} element={<AuthenPage/>}></Route>
         </Routes>
     </BrowserRouter>
   )
