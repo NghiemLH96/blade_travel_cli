@@ -173,14 +173,17 @@ export default function AuthenPage() {
       password:passValue,
       phone:phoneValue
     }
+    console.log(newUserDetail);
+    
     if (type == "skip") {
-      let userFormData = new FormData()
+      let userFormData = new FormData();
       userFormData.append("data", JSON.stringify(newUserDetail))
       const result = await apis.userApiModule.createNew(userFormData)
+
       if (result.status == 200) {
         document.querySelector(".authSite_right")?.classList.add("active_success")
       }else{
-        errorMessage("lỗi gì đó")
+        errorMessage(result.data.message)
       }
     }
   }
