@@ -1,12 +1,43 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useNavigate, useParams } from "react-router-dom"
 import authImg from '@pics/authen.jpg'
 import logo from '@pics/logo_b.png'
 import './authPage.scss'
-import { message } from 'antd';
+import { message , Modal } from 'antd';
 import { apis } from "@/service/apis"
 
 export default function AuthenPage() {
+
+  //ANTD warning notification
+  const warningNoti = (content:string) => {
+    Modal.warning({
+      content: content,
+      onOk:()=>{
+        navigate("/")
+      }
+    });
+  };
+
+  useEffect(()=>{
+    checkLogin()
+  },[])
+  const checkLogin = async ()=>{
+    let token = localStorage.getItem("token")
+    if (token) {
+      try {
+        let result = await apis.userApiModule.checkLogin(token)
+        if (result.status == 200) {
+          warningNoti("Hiện bạn đang trong trạng thái đang nhập")
+        }else{
+          throw false
+        }
+      } catch (error) {
+        
+        console.log(error);
+      }
+    }
+  }
+
   // ANTD components
   // >Error Message
   const [messageApi, contextHolder] = message.useMessage();
@@ -16,7 +47,15 @@ export default function AuthenPage() {
       content: errorText,
     });
   };
-  // >
+  // >Success Message
+  const successMessage = (informText: string) => {
+    messageApi.open({
+      type: 'success',
+      content: informText,
+    });
+  };
+
+  //
   const navigate = useNavigate()
   const { pageFn } = useParams()
 
@@ -166,6 +205,26 @@ export default function AuthenPage() {
   /*********************************************************************************************************/
   //Đăng nhập
 
+  const handleLogin = async (e:React.SyntheticEvent) => {
+    e.preventDefault();
+    let loginInfo = {
+      email:(e.target as any).login_email.value,
+      password:(e.target as any).login_password.value
+    }
+    try {
+      let loginResult = await apis.userApiModule.loginByAccount(loginInfo)
+      if (loginResult.status == 200) {
+        successMessage(loginResult.data.message)
+        localStorage.setItem("token",loginResult.data.token)
+        setTimeout(()=>{navigate("/")},500)
+      }else{
+        errorMessage(loginResult.data.message)
+        return
+      }
+    } catch (error) {
+      errorMessage("Lỗi gì rồi nhỉ? thôi thử lại sau nhé")
+    }
+  }
   return (
     <section className="authPage_container">
       5
@@ -178,7 +237,7 @@ export default function AuthenPage() {
         <div className="authSite_right">
           <div className="login_container">
             <h2>{pageFn == "admin-login" ? "Admin Đăng Nhập" : "Đăng Nhập"}</h2>
-            <form className="login_form" action="">
+            <form onSubmit={(e:React.SyntheticEvent)=>{ handleLogin(e) }} className="login_form" action="">
               <div className="inputField">
                 <label htmlFor="login_email">Email :</label>
                 <input id="login_email" name="login_email" type="email" />
@@ -191,7 +250,7 @@ export default function AuthenPage() {
                 <span>Quên mật khẩu</span>
                 <p>Vẫn chưa có tài khoản? <span onClick={() => { document.querySelector(".authSite_right")?.classList.add("active_register") }}>Đăng ký ngay</span> </p>
               </div>
-              <button>Đăng Nhập</button>
+              <button type="submit">Đăng Nhập</button>
             </form>
             <button className="login_socialMedia">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-google social_icon" viewBox="0 0 16 16">

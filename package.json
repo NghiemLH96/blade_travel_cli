@@ -10,7 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@reduxjs/toolkit": "^2.0.1",
+    "@reduxjs/toolkit": "^2.1.0",
     "antd": "^5.13.0",
     "axios": "^1.6.5",
     "path": "^0.12.7",
