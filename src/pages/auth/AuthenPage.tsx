@@ -4,12 +4,15 @@ import authImg from '@pics/authen.jpg'
 import logo from '@pics/logo_b.png'
 import './authPage.scss'
 import { message , Modal } from 'antd';
-import { apis } from "@/service/apis"
+import { apis } from "@/service/apis";
+import { useAppDispatch } from "@/store/store"
+import { userAction } from "@/store/slices/loginDetail.slice"
 
 export default function AuthenPage() {
+  const dispatch = useAppDispatch()
 
   //ANTD warning notification
-  const warningNoti = (content:string) => {
+  const warningNotice = (content:string) => {
     Modal.warning({
       content: content,
       onOk:()=>{
@@ -27,7 +30,7 @@ export default function AuthenPage() {
       try {
         let result = await apis.userApiModule.checkLogin(token)
         if (result.status == 200) {
-          warningNoti("Hiện bạn đang trong trạng thái đang nhập")
+          warningNotice("Hiện bạn đang trong trạng thái đang nhập")
         }else{
           throw false
         }
@@ -215,6 +218,7 @@ export default function AuthenPage() {
       let loginResult = await apis.userApiModule.loginByAccount(loginInfo)
       if (loginResult.status == 200) {
         successMessage(loginResult.data.message)
+        dispatch(userAction.createLogin(loginResult.data.info))
         localStorage.setItem("token",loginResult.data.token)
         setTimeout(()=>{navigate("/")},500)
       }else{
@@ -227,7 +231,6 @@ export default function AuthenPage() {
   }
   return (
     <section className="authPage_container">
-      5
       {contextHolder}
       <div className="authSite_container">
         <div className="authSite_left">

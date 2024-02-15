@@ -2,7 +2,39 @@ import { useNavigate } from 'react-router-dom'
 import banner1 from '@pics/Banner1.jpg'
 import logo from '@pics/logo.png'
 import { useEffect, useRef, useState } from 'react'
+import { DatePicker, Modal, Space } from 'antd';
+import locale from 'antd/es/date-picker/locale/vi_VN'
+import './scss/header.scss'
+import { useAppDispatch, useAppSelector } from '@/store/store';
+import { userAction } from '@/store/slices/loginDetail.slice';
+
+
+
 export default function Header() {
+    const dispatch = useAppDispatch()
+
+    //ANTD warning notification
+    const { confirm } = Modal;
+    const showConfirm = (title:string) => {
+        confirm({
+          title,
+          onOk() {
+            localStorage.removeItem('token')
+            dispatch(userAction.removeLogin())
+          },
+          onCancel() {
+            
+          },
+        });
+      };
+
+    const loginUser = useAppSelector(state => state.user.data);
+
+
+    const { RangePicker } = DatePicker;
+    const [startDate, setStartDate] = useState("")
+    const [endDate, setEndDate] = useState("")
+
     const navigate = useNavigate()
     const [languageTrigger, setLanguageTrigger] = useState(false)
     const [accTrigger, setAccTrigger] = useState(false)
@@ -48,8 +80,8 @@ export default function Header() {
                 <section className='header_top_right'>
                     <div ref={langMenuRef} className='languageBtn' >
                         <span className="material-symbols-outlined languageIcon" onClick={() => {
-                        setLanguageTrigger(!languageTrigger)
-                    }}>
+                            setLanguageTrigger(!languageTrigger)
+                        }}>
                             language
                         </span>
                         <div className={languageTrigger ? 'langMenu_dropDown active' : 'langMenu_dropDown'}>
@@ -63,17 +95,40 @@ export default function Header() {
                             <span className="material-symbols-outlined menuIcon">
                                 menu
                             </span>
-                            <img className='userAvatar' src="http://127.0.0.1:3000/imgs/avatars/avatar_1231231231.jpeg"/*"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAJ0AAACUCAMAAAC+99ssAAAAOVBMVEV1dXXAwMBycnK9vb3Dw8N/f3+4uLi1tbV7e3tvb2+Dg4OqqqqwsLCMjIx4eHiZmZmjo6OSkpJqamq7vN+tAAAEdElEQVR4nO2c0XKsIAyGJSCKoEDf/2FP8Gx3u2e1K3ETnTn+N+1FZ/pNSAgmgaa5dOnSpUuXDhMUNU3fT0eTvAhg6occY0wh+BGOxvkhcK4Zou+sVkYpY1Q+muhbAK4fU0AwZbTW1mpjz2E69LJ2jB1aC+1VVOhUN5wArqDl1M1gWqu77HQCODdl32lzQ3rQmfB1NBqyxaCNUa8y1h1sO2iSXUSbFQ4NCuizXUMrDmhU7I/iA8jh2dNe8NB8B4Ut9FGtrukP5xvhAD7XBqPtit1+WFDp2MjjZV0Swlvb4Z+YIO18Lm9Y1Rsd4rWieAhXIyOb0vL7JX2WIB4MXSWc5OJitNbSyeFBrMH69gHjRc4EMNQ63Q0vSxjPxfp1nWUl1hZopkMlfjoYiaZD4/FvKy5R4ZSK3HBN48lwJnGzQR/odJ67NABtdZ540IWem66/6Mh0e1a2a89MZ/9zusFedBfdRXfRfYyOfDSWoBsvuovuorvojqfTInRWbSgXL8BpfWLbXXTwtYeu420NQPbUQsVMN7Aar9eGFhMznVKWtRXfbuyhLNLNP5Ljo5voR8+/MpGRDgi9gGdxrqzze+k4i7Nut+1Y6c5tu7STTnP2LFzeSWc5K8c7mhWzTMeayoaddJ5xu8NkoXfhGc5UgcmC3kuZ6ThTBaqqN/tKxzxdsaPIU4KClQ21Zz9mbyDvqpCx9yvweEw/4kn03vXa1Ng70wn0thvwhnh4lzCdi0Q6mamFgfbhY4LMWPmWybYFOgm3Q3WkqDUyg1pAPILKTB8DaZiH+fD0EKmUYrIQ3UTJtSL7SRFhabVin5S50w2rE9rreHJD5SVqq/Y8rZPcDR9o7eoA+QqeyGjgTa7yy5F/AuoZr25HttLT2mnz2uKfSe113yqTblvpmCsAi3hxa9haJZXEHpqS2Wi7U9OhhQ+g82emK1dTTktXcu2p6TbuKPqAqCi9xq22Y67a7aJjrykuKZ+ZrlwBOTFdOYCelQ7A19B9iR4DppwrBntNyIL3yaD1tSU8L3gbj1Cq8Nwj7neRSsdSX4x198lukrmv1RCrPEbgTs9fOkqFjP9OzzcdqQTVyXzRukyrast8NVKnPqwEHYwkNi1TN3bUDq3x7HTgaF28eUSr5X05AKAdidcYy8sCfuz5+ACGGOYhMkLIzjfzdYiDYwkOB6Ont2ZvrzIYZX1uPs0H0JdnbchwP4SAsf/s2xBDUuuvoFTzGfTA9jOAaLbsf3mhhQiIHrifD3eQFPZNyKwJPXDa5YHg+qQ/424LMipkID/dA9MYDLXLvhUwDSQ0aHOJUlqneKPmPTCNtTkEMErJG2+lcIFjTQSXULBs7rbE16V2Yw4BTApKwmjPCuMGPJiGYGSW9K7ZtXGBx98P94Bh6gWX9E53S8I+/3KIgWZk2nnf0D1+wwBZXmD0t6CZt5C3wgCJ/QIf3PxNPByehf/95Xmrsr99ONGTVe5OxZ8lK2hTfaefU+h/D4ebS4WH+ts/0krfd7j5Q2bDi2dywtD8A1glOycxTXjaAAAAAElFTkSuQmCC"*/ alt="" />
+                            <img className='userAvatar' src={(loginUser as any).avatar ? `http://127.0.0.1:3000/imgs/avatars/${(loginUser as any).avatar}` : "https://cdn.vectorstock.com/i/preview-1x/66/14/default-avatar-photo-placeholder-profile-picture-vector-21806614.jpg"} alt="" />
                         </div>
                         <div className={accTrigger ? 'accountMenu_dropDown active' : 'accountMenu_dropDown'}>
-                            <span onClick={() => { navigate("/auth") }}>Đăng nhập</span>
+                            {!(loginUser as any).id && <span onClick={() => { navigate("/auth") }}>Đăng nhập</span>}
                             <span onClick={() => { navigate("/booking") }}>Đơn Hàng</span>
                             <span onClick={() => { navigate("/auth/business-login") }}>Truy cập trang quản lý</span>
-                            <span>Thoát</span>
+                            <span onClick={() => {
+                                showConfirm("Bạn chắc chắn muốn đăng xuất chứ?")
+                            }}>Thoát</span>
                         </div>
                     </div>
                 </section>
             </div>
+            <section className="header_bottom">
+                <div className='header_searchBar'>
+                    <div className='selector area'>
+                        <input className='areaInput' type="text" />
+                    </div>
+                    <div className='selector date'>
+                        <RangePicker locale={locale} className='dateInput' onChange={(e => {
+                            setStartDate(`${e?.[0]?.get('date')}/${String(Number(e?.[0]?.get('month')) + 1)}/${e?.[0]?.get('year')}`)
+                            setEndDate(`${e?.[1]?.get('date')}/${String(Number(e?.[1]?.get('month')) + 1)}/${e?.[1]?.get('year')}`)
+                        })} />
+                    </div>
+                    <div className='selector pax'>
+                        <div className='paxInput'>
+                            1 người lớn , 0 trẻ em , 1 phòng
+                        </div>
+                    </div>
+                    <div className='searchBox'>
+                        <button className='searchBtn'>Tìm kiếm</button>
+                    </div>
+                </div>
+            </section>
         </header>
     )
 }
