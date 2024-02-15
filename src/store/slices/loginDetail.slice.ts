@@ -9,7 +9,7 @@ export const loginDetailSlice = createSlice({
         createLogin:(state , actions:PayloadAction<Object>)=>{
             state.data = actions.payload
         },
-        removeLogin:(state , actions:PayloadAction)=>{
+        removeLogin:(state)=>{
             state.data = {}
         }
     }

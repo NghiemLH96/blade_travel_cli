@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom'
 import banner1 from '@pics/Banner1.jpg'
 import logo from '@pics/logo.png'
 import { useEffect, useRef, useState } from 'react'
-import { DatePicker, Modal, Space } from 'antd';
+import { DatePicker, Modal } from 'antd';
 import locale from 'antd/es/date-picker/locale/vi_VN'
 import './scss/header.scss'
 import { useAppDispatch, useAppSelector } from '@/store/store';
@@ -34,6 +34,10 @@ export default function Header() {
     const { RangePicker } = DatePicker;
     const [startDate, setStartDate] = useState("")
     const [endDate, setEndDate] = useState("")
+    console.log(startDate);
+    console.log(endDate);
+    
+    
 
     const navigate = useNavigate()
     const [languageTrigger, setLanguageTrigger] = useState(false)
