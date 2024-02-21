@@ -1,0 +1,50 @@
+.adminMain_container{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    .body_content{
+        width: 100%;
+        height: 100%;
+        display: flex;
+        .menuList{
+            width: 20%;
+            height: 90vh;
+            padding: 10px 0px;
+            background-color: #252935;
+            transition: all 1s;
+            &.disable{
+                width: 0;
+            }
+            .menuSelector{
+                display: flex;
+                width: 100%;
+                height: 50px;
+                align-items: center;
+                column-gap: 10px;
+                color: #FFFFFF;
+                padding: 10px 30px;
+                cursor: pointer;
+                .menuText{
+                    text-wrap: nowrap;
+                }
+                &:hover{
+                    color: #63b99b;
+                    background-color: #444b62;
+                }
+                &.active{
+                    color: #63b99b;
+                    background-color: #444b62;
+                }
+            }
+        }
+        .outlet_container{
+            background-color: #131421;
+            width: 80%;
+            padding: 30px;
+            transition: all 1s;
+            &.extend{
+                width: 100%;
+            }
+        }
+    }
+}

@@ -1,10 +1,12 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { loginDetailSlice } from "./slices/loginDetail.slice";
 import { TypedUseSelectorHook, useDispatch , useSelector} from "react-redux";
+import {adminLoginDetailSlice} from "./slices/adminLoginDetail.slice";
 
 export const store = configureStore({
     reducer:{
-        user:loginDetailSlice.reducer
+        user:loginDetailSlice.reducer,
+        admin:adminLoginDetailSlice.reducer
     }
 })
 
