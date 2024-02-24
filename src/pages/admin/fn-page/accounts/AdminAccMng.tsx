@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import './adminAcc.scss'
+import '../../scss/fnPage.scss'
 import { apis } from '@/service/apis';
 import Modal from 'antd/es/modal';
 import PhoneEditProp from './components/PhoneEditProp';
@@ -8,6 +8,7 @@ import { Pagination, PaginationProps, Select } from 'antd';
 export default function AdminAccMng() {
   const [renderUserList, setRenderUserList] = useState<Array<any>>([])
   const [resultCount , setResultCount] = useState<number>(0)
+  const pageSize = 10
 
     //Tìm kiếm
     const [searchStatus , setSearchStatus] = useState<boolean|null>(null)
@@ -30,7 +31,7 @@ export default function AdminAccMng() {
 
   const getPageUserList = async () => {
       try {
-        const result = await apis.adminApiModule.search({status:searchStatus,email:searchByEmail,phone:searchByPhone,currentPage:current,pageSize:2})
+        const result = await apis.adminApiModule.search({status:searchStatus,email:searchByEmail,phone:searchByPhone,currentPage:current,pageSize:pageSize})
         console.log('page',result);
         
         setResultCount(result.data.total)
@@ -139,7 +140,7 @@ export default function AdminAccMng() {
           <div className='paginationBar'>
             <Pagination defaultCurrent={1} 
             total={resultCount} 
-            defaultPageSize={2}
+            pageSize={10}
             size='small' 
             onChange={handlePage} 
             />
@@ -171,7 +172,6 @@ export default function AdminAccMng() {
                 <button style={user.status ? { backgroundColor: 'red' } : { backgroundColor: 'green' }} onClick={() => { handleLock({ userId: user.id, userStatus: user.status }) }}>{user.status ? 'Khoá' : 'Mở khoá'}</button>
                 <button style={{ backgroundColor: 'green' }} onClick={() => { setShowPhoneEdit(true), setEditingUserId(user.id) }}>Sửa số điện thoại</button>
                 <button style={{ backgroundColor: 'orange' }} onClick={() => { handleResetPW(user.id, user.email) }}>Đặt lại mật khẩu</button>
-                <button style={{ backgroundColor: 'blue' }}>Gửi thông báo</button>
               </td>
             </tr>
           ))}

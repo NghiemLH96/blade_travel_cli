@@ -1,7 +1,7 @@
 import { Outlet, useNavigate } from "react-router-dom";
 import AdminHeader from "./components/header/AdminHeader";
 import { useState } from "react";
-import './adminMain.scss'
+import './scss/adminMain.scss'
 
 export default function AdminMainPage() {
   const [menuListState , setMenuListState] = useState(true)

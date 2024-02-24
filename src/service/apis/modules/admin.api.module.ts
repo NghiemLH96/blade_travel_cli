@@ -10,18 +10,18 @@ export const adminApiModule = {
     }
     ,
     changeUserStatus:async function(user:{userId:number,userStatus:boolean}){
-        return await axios.patch(import.meta.env.VITE_PROTOCOL+import.meta.env.VITE_HOST+`/api/v1/admins/user-status`,user)
+        return await axios.patch(import.meta.env.VITE_PROTOCOL+import.meta.env.VITE_HOST+`/api/v1/admins-users/user-status`,user)
     }
     ,
     resetPW:async function(userId:number){
-        return await axios.patch(import.meta.env.VITE_PROTOCOL+import.meta.env.VITE_HOST+`/api/v1/admins/reset-pass`,{userId})
+        return await axios.patch(import.meta.env.VITE_PROTOCOL+import.meta.env.VITE_HOST+`/api/v1/admins-users/reset-pass`,{userId})
     }
     ,
     updatePhone:async function(userId:number,newPhoneNo:string){
-        return await axios.patch(import.meta.env.VITE_PROTOCOL+import.meta.env.VITE_HOST+`/api/v1/admins/update-phone`,{userId,newPhoneNo})
+        return await axios.patch(import.meta.env.VITE_PROTOCOL+import.meta.env.VITE_HOST+`/api/v1/admins-users/update-phone`,{userId,newPhoneNo})
     }
     ,
     search:async function(searchOption:{status:boolean|null,email:string|null,phone:string|null,currentPage:number,pageSize:number}){
-        return await axios.post(import.meta.env.VITE_PROTOCOL+import.meta.env.VITE_HOST+`/api/v1/admins/users-search`,searchOption)
+        return await axios.post(import.meta.env.VITE_PROTOCOL+import.meta.env.VITE_HOST+`/api/v1/admins-users/users-search`,searchOption)
     }
 }

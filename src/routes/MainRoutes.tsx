@@ -1,19 +1,19 @@
 import { Route, Routes } from 'react-router-dom'
-import AuthenPage from '@/pages/client/auth/AuthenPage'
-import Home from '@/pages/client/pages/home/Home'
+import AuthenPage from '@pages/client/auth/AuthenPage'
+import Home from '@pages/client/pages/home/Home'
 import utils from '@/utils'
 import VerifyEmailPage from '@/pages/client/auth/VerifyEmailPage'
-import AdminAuth from '@/pages/admin/auth/AdminAuth'
+import AdminAuth from '@/pages/admin/auth-page/auth/AdminAuth'
 import AdminMainPage from '@/pages/admin/AdminMainPage'
-import AdminHome from '@/pages/admin/home/AdminHome'
-import AdminProductMng from '@/pages/admin/products/AdminProductMng'
-import AdminAccMng from '@/pages/admin/accounts/AdminAccMng'
-import AdminReceiptMng from '@/pages/admin/receipts/AdminReceiptMng'
+import AdminHome from '@/pages/admin/fn-page/home/AdminHome'
+import AdminProductMng from '@/pages/admin/fn-page/products/AdminProductMng'
+import AdminAccMng from '@/pages/admin/fn-page/accounts/AdminAccMng'
+import AdminReceiptMng from '@/pages/admin/fn-page/receipts/AdminReceiptMng'
 
 export default function MainRoutes() {
   return (
         <Routes>
-            <Route path='/' element={utils.lazyFn(()=>import('@/pages/client/MainPage'))()}>
+            <Route path='/' element={utils.lazyFn(()=>import('@pages/client/MainPage'))()}>
                 <Route path='' element={<Home/>}></Route>
             </Route>
             <Route path='/auth' element={<AuthenPage/>}></Route>

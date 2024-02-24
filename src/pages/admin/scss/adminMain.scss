@@ -2,15 +2,16 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    background-color: #252935;
+    min-height: 100vh;
     .body_content{
         width: 100%;
         height: 100%;
         display: flex;
         .menuList{
             width: 20%;
-            height: 90vh;
+            height: 100%;
             padding: 10px 0px;
-            background-color: #252935;
             transition: all 1s;
             &.disable{
                 width: 0;
