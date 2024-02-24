@@ -1,6 +1,8 @@
 
 export default function AdminProductMng() {
   return (
-    <div>AdminProductMng</div>
+    <div>
+      
+    </div>
   )
 }
