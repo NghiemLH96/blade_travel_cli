@@ -39,4 +39,4 @@ jobs:
           echo "build dự án"
           npm run build
           echo "thông báo"
-          curl -X POST -H "Content-Type: application/json" -H "Authorization:${{ secrets.DISCORD_AUTHORIZATION }}" -d '{"content":"Dự án ReactJS đã deploy thành công link: https://travel.myblade.io.vn/ "}' ${{ secrets.DISCORD_NOTIFY_URL }}
+          echo "curl -X POST -H "Content-Type: application/json" -H "Authorization:${{ secrets.DISCORD_AUTHORIZATION }}" -d '{"content":"Dự án ReactJS đã deploy thành công link: https://travel.myblade.io.vn/ "}' ${{ secrets.DISCORD_NOTIFY_URL }}"
