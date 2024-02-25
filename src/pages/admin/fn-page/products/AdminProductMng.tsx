@@ -1,5 +1,5 @@
 import { apis } from "@/service/apis"
-import { Modal, Pagination, PaginationProps, Select } from "antd"
+import { Pagination, PaginationProps, Select } from "antd"
 import { useEffect, useState } from "react"
 import '../../scss/fnPage.scss'
 
@@ -93,27 +93,7 @@ export default function AdminProductMng() {
     const formattedDateTime = `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
     return formattedDateTime
   }
-  //Khoá & Mở khoá tài khoản
-  const { confirm } = Modal;
-
-  const handleLock = (user: { userId: number, userStatus: boolean }) => {
-    confirm({
-      title: 'Thay đổi trạng thái',
-      content: `Bạn chắc chắn muốn ${user.userStatus ? 'khoá' : 'mở khoá'} tài khoản này chứ`,
-      async onOk() {
-        const result = await apis.adminApiModule.changeUserStatus(user)
-        if (result.status == 200) {
-          success(result.data.message)
-        } else {
-          error(result.data.message)
-        }
-        getPageProductList()
-      },
-      okText: 'Xác định',
-      cancelText: 'Huỷ'
-    });
-  };
-
+  /*
   const success = (content: string) => {
     Modal.success({
       content: content,
@@ -125,32 +105,7 @@ export default function AdminProductMng() {
       content: content,
     });
   };
-
-  //Khôi phục mật khẩu
-
-  const handleResetPW = (userId: number, userEmail: string) => {
-    confirm({
-      title: 'Khôi phục mật khẩu',
-      content: `Bạn chắc chắn muốn khôi phục mật khẩu của ${userEmail} chứ`,
-      async onOk() {
-        try {
-          const result = await apis.adminApiModule.resetPW(userId)
-          if (result.status == 200) {
-            success(result.data.message)
-            console.log(result.data.data);
-          } else {
-            error(result.data.message)
-          }
-          getPageProductList()
-        } catch (err) {
-          error(String(err))
-        }
-      },
-      okText: 'Xác định',
-      cancelText: 'Huỷ'
-    });
-  };
-
+*/
   return (
     <div className='content_container'>
       <h2 className='content_title'>Quản lý sản phẩm</h2>
