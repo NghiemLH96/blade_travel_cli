@@ -20,6 +20,14 @@ export default function AdminMainPage() {
             <span className="menuText">Quản lý sản phẩm</span>
           </div>
           <div className="menuSelector" onClick={()=>{
+            navigate("/admin/admins-account")
+          }}>
+            <span className="material-symbols-outlined icon">
+              person
+            </span>
+            <span className="menuText">Quản lý quản trị viên</span>
+          </div>
+          <div className="menuSelector" onClick={()=>{
             navigate("/admin/accounts")
           }}>
             <span className="material-symbols-outlined icon">

@@ -12,8 +12,8 @@ export default function AdminAccMng() {
 
     //Tìm kiếm
     const [searchStatus , setSearchStatus] = useState<boolean|null>(null)
-    const [searchByEmail , setSearchByEmail] = useState<string|null>(null)
-    const [searchByPhone , setSearchByPhone] = useState<string|null>(null)
+    const [searchByEmail , setSearchByEmail] = useState<string>("")
+    const [searchByPhone , setSearchByPhone] = useState<string>("")
   
     const handleSelectorChange = (value: boolean|null) => {
       setSearchStatus(value)
@@ -31,7 +31,7 @@ export default function AdminAccMng() {
 
   const getPageUserList = async () => {
       try {
-        const result = await apis.adminApiModule.search({status:searchStatus,email:searchByEmail,phone:searchByPhone,currentPage:current,pageSize:pageSize})
+        const result = await apis.usersMngApiModule.search({status:searchStatus,email:searchByEmail,phone:searchByPhone,currentPage:current,pageSize:pageSize})
         console.log('page',result);
         
         setResultCount(result.data.total)
@@ -62,7 +62,7 @@ export default function AdminAccMng() {
       title: 'Thay đổi trạng thái',
       content: `Bạn chắc chắn muốn ${user.userStatus ? 'khoá' : 'mở khoá'} tài khoản này chứ`,
       async onOk() {
-        const result = await apis.adminApiModule.changeUserStatus(user)
+        const result = await apis.usersMngApiModule.changeUserStatus(user)
         if (result.status == 200) {
           success(result.data.message)
         } else {
@@ -95,7 +95,7 @@ export default function AdminAccMng() {
       content: `Bạn chắc chắn muốn khôi phục mật khẩu của ${userEmail} chứ`,
       async onOk() {
         try {
-          const result = await apis.adminApiModule.resetPW(userId)
+          const result = await apis.usersMngApiModule.resetPW(userId)
           if (result.status == 200) {
             success(result.data.message)
             console.log(result.data.data);
@@ -123,8 +123,8 @@ export default function AdminAccMng() {
       <h2 className='content_title'>Quản lý tài khoản người dùng</h2>
       <div className='toolBar'>
         <div className='searchBar'>
-          <input type="text" placeholder='Tên tài khoản' onChange={(e)=>{setSearchByEmail(e.target.value == "" ? null : e.target.value)}}/>
-          <input type="text" placeholder='Số điện thoại' onChange={(e)=>{setSearchByPhone(e.target.value == "" ? null : e.target.value)}}/>
+          <input type="text" placeholder='Tên tài khoản' onChange={(e)=>{setSearchByEmail(e.target.value)}}/>
+          <input type="text" placeholder='Số điện thoại' onChange={(e)=>{setSearchByPhone(e.target.value)}}/>
           <label >Trạng thái: </label>
           <Select
             defaultValue={null}
@@ -161,7 +161,7 @@ export default function AdminAccMng() {
         </thead>
         <tbody>
           {renderUserList && renderUserList.map(user => (
-            <tr className='user_item' key={user.id} style={{ height: '20px' }}>
+            <tr className='user_item' key={user.id} style={{ height: '20px' , maxHeight: '20px'}}>
               <td>{user.id}</td>
               <td>{user.email}</td>
               <td>{user.status ? 'Hoạt động' : 'Tạm khoá'}</td>

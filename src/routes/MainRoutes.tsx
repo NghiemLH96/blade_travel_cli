@@ -9,6 +9,7 @@ import AdminHome from '@/pages/admin/fn-page/home/AdminHome'
 import AdminProductMng from '@/pages/admin/fn-page/products/AdminProductMng'
 import AdminAccMng from '@/pages/admin/fn-page/accounts/AdminAccMng'
 import AdminReceiptMng from '@/pages/admin/fn-page/receipts/AdminReceiptMng'
+import AdminAccsMng from '@/pages/admin/fn-page/admins/AdminAccsMng'
 
 export default function MainRoutes() {
   return (
@@ -21,6 +22,7 @@ export default function MainRoutes() {
             <Route path='/admin' element={<AdminMainPage/>}>
               <Route path='home' element={<AdminHome/>}/>
               <Route path='products' element={<AdminProductMng/>}/>
+              <Route path='admins-account' element={<AdminAccsMng/>}/>
               <Route path='accounts' element={<AdminAccMng/>}/>
               <Route path='receipts' element={<AdminReceiptMng/>}/>
             </Route>
