@@ -120,7 +120,7 @@ export default function AdminAccsMng() {
 
     return (
         <div className='content_container'> 
-            <div ref={editPermisEl} className={editPermission ? "editPermiss_container active" : "editPermiss_container"}>
+            <div ref={editPermisEl} className={editPermission ? "popupWindow permis active" : "popupWindow permis"}>
                 <h2>Thay đổi chức vụ</h2>
                 <p>Xin hãy chọn chức vụ cho quản trị viên {editingAdminName}</p>
                 <select className="permis_selector" value={permisChange} onChange={(e)=>{setPermisChange(e.target.value)}}>
@@ -146,20 +146,13 @@ export default function AdminAccsMng() {
                             { value: false, label: 'Tạm khoá' },
                         ]}
                     />
-                    <button className='searchBtn' onClick={() => { getPageAdminsList() }}>Tìm kiếm</button>
-                    <div className='paginationBar'>
-                        <Pagination defaultCurrent={1}
-                            total={resultCount}
-                            pageSize={pageSize}
-                            size='small'
-                            onChange={handlePage}
-                        />
-                    </div>
+                    <button className='btn search' onClick={() => { getPageAdminsList() }}>Tìm kiếm</button>
                 </div>
             </div>
             <table className='content_table' border={1}  >
                 <thead>
                     <tr style={{ height: '40px' }}>
+                        <th style={{ width: '50px' }}>STT</th>
                         <th style={{ width: '50px' }}>ID</th>
                         <th>Tên tài khoản</th>
                         <th>Trạng thái</th>
@@ -170,8 +163,9 @@ export default function AdminAccsMng() {
                     </tr>
                 </thead>
                 <tbody>
-                    {renderAdminsList && renderAdminsList.map(admin => (
+                    {renderAdminsList && renderAdminsList.map((admin,index) => (
                         <tr className='user_item' key={admin.id} style={{ height: '20px' }}>
+                            <td>{(current-1)*pageSize+index+1}</td>
                             <td>{admin.id}</td>
                             <td>{admin.username}</td>
                             <td>{admin.status ? 'Hoạt động' : 'Tạm khoá'}</td>
@@ -179,8 +173,8 @@ export default function AdminAccsMng() {
                             <td>{handleDateType(admin.createAt)}</td>
                             <td>{handleDateType(admin.updateAt)}</td>
                             <td className='btnBar'>
-                                <button style={admin.status ? { backgroundColor: 'red' } : { backgroundColor: 'green' }} onClick={() => { handleLock({ id: admin.id, status: admin.status }) }}>{admin.status ? 'Khoá' : 'Mở khoá'}</button>
-                                <button style={{ backgroundColor: 'green' }} onClick={() => { 
+                                <button style={admin.status ? { backgroundColor: 'red' } : { backgroundColor: 'green' }}  onClick={() => { handleLock({ id: admin.id, status: admin.status }) }}>{admin.status ? 'Khoá' : 'Mở khoá'}</button>
+                                <button style={{ backgroundColor: 'green' }} disabled={editPermission ? true : false} onClick={() => { 
                                     setEditPermission(true)
                                     setEditingAdminId(admin.id)
                                     setEditingAdminName(admin.username)
@@ -194,11 +188,19 @@ export default function AdminAccsMng() {
                 </tbody>
                 <tfoot>
                     <tr>
-                        <th colSpan={6}>Tổng số người dùng</th>
+                        <th colSpan={7}>Tổng số người dùng</th>
                         <th>{resultCount}</th>
                     </tr>
                 </tfoot>
             </table>
+            <div className='paginationBar'>
+                        <Pagination defaultCurrent={1}
+                            total={resultCount}
+                            pageSize={pageSize}
+                            size='small'
+                            onChange={handlePage}
+                        />
+                    </div>
         </div>
     )
 }

@@ -22,13 +22,11 @@
         .searchBar{
             width: 100%;
             display: flex;
-            justify-content: space-between;
-            .adminAccs-searchInput{
-                width: 500px;
-            }
+            justify-content: end;
+            column-gap: 10px;
             input{
                 height: 25px;
-                min-width: 150px;
+                width: auto;
                 border-radius: 10px;
                 outline: none;
                 border:none;
@@ -38,19 +36,23 @@
             label{
                 line-height: 25px;
             }
-            .searchBtn{
-                width: 100px;
-                height: 25px;
-                background-color: #3648E7;
+            .btn{
+                width: 80px;
+                height: 26px;
                 border-radius: 8px;
-                color: #FFFFFF;
+                color: #292929;
                 border: none;
                 z-index: 10;
                 cursor: pointer;
-            }
-            .paginationBar{
-                display: flex;
-                justify-content: center;
+                &:active{
+                    color: #ffbd60;
+                }
+                &.search{
+                    background-color: #a9a1fe;
+                }
+                &.add{
+                    background-color: #36e7ca;
+                }
             }
         }
     }
@@ -68,6 +70,7 @@
             height: 30px;
         }
         tbody{
+            height: 400px;
             text-align: center;
             .user_item{
                 &:hover{
@@ -101,56 +104,87 @@
             text-align: center;
         }
     }
+    .paginationBar{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: #FFFFFF;
+        height: 30px;
+        margin: 10px 0px;
+        border-radius: 10px;
+    }
 }
 
 //Thay đổi chức vụ
-.editPermiss_container{
-    position: fixed;
-    box-shadow: 3px 5px 5px black;
-    width: 380px;
-    height: 160px;
-    border-radius: 10px;
-    background-color: #FFFFFF;
-    top: 16%;
-    left: 45%;
-    transform: translate(200px , 200px) scale(0);
-    opacity: 0;
-    transition: all 0.4s;
-    pointer-events: none;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    padding: 20px;
-    z-index: 20;
-    font-size: 15px;
-    p{
-        margin: 5px 0px;
-    }
-    .permis_selector{
-        padding: 5px;
-        margin: 10px 0px;
-        border-radius: 5px;
-        border-color: #bbbcc0;
-        font-size: 13px;
-        cursor: pointer;
-        outline: none;
-    }
-    &.active{
-        opacity: 1;
-        transform: translate(0px , 0px) scale(1);
-        pointer-events: all;
-    }
-    .permis_btnBox{
+    .popupWindow{
+        position: fixed;
+        box-shadow: 3px 5px 5px black;
+        border-radius: 10px;
+        background-color: #FFFFFF;
+        top: 16%;
+        left: 45%;
+        transform: translate(200px , 200px) scale(0);
+        opacity: 0;
+        transition: all 0.4s;
+        pointer-events: none;
         display: flex;
-        justify-content: end;
-        margin: 5px 0px;
-        button{
-            width: 100px;
-            height: 25px;
-            background-color: #2E2D32;
-            color: #F9F8FD;
-            border-radius: 5px;
-            cursor: pointer;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: 20px;
+        z-index: 4;
+        font-size: 15px;
+        &.permis{
+            width: 400px;
+            height: 180px;
         }
-    }
+        &.addNew{
+            width: 400px;
+            height: 400px;
+        }
+        .popupWindow-inputForm{
+            input{
+                width: 100%;
+                padding: 5px;
+                margin: 5px 0px;
+                border-radius: 5px;
+                border: #2E2D32 1px solid;
+                outline: none;
+            }
+            width: 300px;
+        }
+        p{
+            margin: 5px 0px;
+        }
+        .permis_selector{
+            padding: 5px;
+            margin: 10px 0px;
+            border-radius: 5px;
+            border-color: #bbbcc0;
+            font-size: 13px;
+            cursor: pointer;
+            outline: none;
+        }
+        &.active{
+            opacity: 1;
+            transform: translate(0px , 0px) scale(1);
+            pointer-events: all;
+        }
+        .permis_btnBox{
+            display: flex;
+            justify-content: end;
+            margin: 5px 0px;
+            button{
+                width: 100px;
+                height: 25px;
+                background-color: #2E2D32;
+                color: #F9F8FD;
+                border-radius: 5px;
+                cursor: pointer;
+            }
+        }
+}
+
+tr{
+    max-height: 40px;
+    height: 40px;
 }

@@ -125,31 +125,23 @@ export default function AdminAccMng() {
         <div className='searchBar'>
           <input type="text" placeholder='Tên tài khoản' onChange={(e)=>{setSearchByEmail(e.target.value)}}/>
           <input type="text" placeholder='Số điện thoại' onChange={(e)=>{setSearchByPhone(e.target.value)}}/>
-          <label >Trạng thái: </label>
           <Select
             defaultValue={null}
             style={{ width: 120 , height: 25}}
             onChange={handleSelectorChange}
             options={[
-              { value: null, label: 'Tất cả' },
+              { value: null, label: 'Chọn trạng thái' },
               { value: true, label: 'Hoạt động' },
               { value: false, label: 'Tạm khoá' },
             ]}
           />
-          <button className='searchBtn' onClick={()=>{getPageUserList()}}>Tìm kiếm</button>
-          <div className='paginationBar'>
-            <Pagination defaultCurrent={1} 
-            total={resultCount} 
-            pageSize={10}
-            size='small' 
-            onChange={handlePage} 
-            />
-          </div>
+          <button className='btn search' onClick={()=>{getPageUserList()}}>Tìm kiếm</button>
         </div>
       </div>
       <table className='content_table' border={1}  >
         <thead>
           <tr style={{ height: '40px' }}>
+            <th  style={{ width: '50px' }}>STT</th>
             <th style={{ width: '50px' }}>ID</th>
             <th style={{ width: '200px' }}>Tên tài khoản</th>
             <th style={{ width: '80px' }}>Trạng thái</th>
@@ -160,8 +152,9 @@ export default function AdminAccMng() {
           </tr>
         </thead>
         <tbody>
-          {renderUserList && renderUserList.map(user => (
+          {renderUserList && renderUserList.map((user,index) => (
             <tr className='user_item' key={user.id} style={{ height: '20px' , maxHeight: '20px'}}>
+              <td>{(current-1)*pageSize+index+1}</td>
               <td>{user.id}</td>
               <td>{user.email}</td>
               <td>{user.status ? 'Hoạt động' : 'Tạm khoá'}</td>
@@ -178,11 +171,19 @@ export default function AdminAccMng() {
         </tbody>
         <tfoot>
           <tr>
-            <th colSpan={6}>Tổng số người dùng</th>
+            <th colSpan={7}>Tổng số người dùng</th>
             <th>{resultCount}</th>
           </tr>
         </tfoot>
       </table>
+      <div className='paginationBar'>
+            <Pagination defaultCurrent={1} 
+            total={resultCount} 
+            pageSize={10}
+            size='small' 
+            onChange={handlePage} 
+            />
+          </div>
     </div>
   )
 }
