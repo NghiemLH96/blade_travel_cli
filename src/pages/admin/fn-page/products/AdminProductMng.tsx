@@ -1,18 +1,68 @@
 import { apis } from "@/service/apis"
-import { Pagination, PaginationProps, Select } from "antd"
+import { Modal, Pagination, PaginationProps, Select } from "antd"
 import { useEffect, useState } from "react"
 import '../../scss/fnPage.scss'
 
 export default function AdminProductMng() {
 
   const [renderProductList, setRenderProductList] = useState<Array<any>>([])
+  const [categoriesList, setCategoriesList] = useState<Array<any>>([])
+  const [materialList, setMaterialList] = useState<Array<any>>([])
+  const [madeByList, setMadeByList] = useState<Array<any>>([])
+  const [brandsList, setBrandsList] = useState<Array<any>>([])
+
+  const [categoriesOption , setCategoriesOption] = useState<Array<{value:number|null,label:string}>>([{value:null,label:"Chọn thể loại"}])
+  const [materialOption , setMaterialOption] = useState<Array<{value:number|null,label:string}>>([{value:null,label:"Chọn chất liệu"}])
+  const [brandsOption , setBrandsOption] = useState<Array<{value:number|null,label:string}>>([{value:null,label:"Chọn nhãn hiệu"}])
+  const [madeByOption , setMadeByOption] = useState<Array<{value:number|null,label:string}>>([{value:null,label:"Chọn xuất xứ"}])
+
+
+  useEffect(()=>{
+    setCategoriesOption(
+      categoriesOption.concat(categoriesList.map(item => {
+      return {value:item.id , label:item.categoryName}
+    })))
+  },[categoriesList])
+
+  useEffect(()=>{
+    setMaterialOption(
+      materialOption.concat(materialList.map(item => {
+        return {value:item.id , label:item.material}
+      }))
+    )
+  },[materialList])
+
+  useEffect(()=>{
+    setMadeByOption(
+      madeByOption.concat(madeByList.map(item => {
+        return {value:item.id , label:item.country}
+      }))
+    )
+  },[madeByList])
+
+  useEffect(()=>{
+    setBrandsOption(
+      brandsOption.concat(brandsList.map(item => {
+        return {value:item.id , label:item.brandName}
+      }))
+    )
+  },[brandsList])
+
   const [resultCount, setResultCount] = useState<number>(0)
   const pageSize = 10
 
+
+  const error = (content: string) => {
+    Modal.error({
+      content: content,
+    });
+  };
+  
   //Phân trang
   const [current, setCurrent] = useState(1);
   useEffect(() => {
     getPageProductList()
+    getSearchSelector(null)
   }, [current])
 
   const handlePage: PaginationProps['onChange'] = (page) => {
@@ -21,8 +71,8 @@ export default function AdminProductMng() {
 
   //Tìm kiếm
   const [searchName, setSearchName] = useState<string>("")
-  const [searchMaterial, setSearchMaterial] = useState<string | null>(null)
-  const handleMaterialSelector = (value: string | null) => {
+  const [searchMaterial, setSearchMaterial] = useState<number | null>(null)
+  const handleMaterialSelector = (value: number | null) => {
     setSearchMaterial(value)
   }
 
@@ -31,20 +81,57 @@ export default function AdminProductMng() {
     setSearchStatus(value)
   };
 
-  const [searchMadeBy, setSearchMadeBy] = useState<string | null>(null)
-  const handleMadeBySelector = (value: string | null) => {
+  const [searchMadeBy, setSearchMadeBy] = useState<number | null>(null)
+  const handleMadeBySelector = (value: number | null) => {
     setSearchMadeBy(value)
   };
 
-  const [searchCategory, setSearchCategory] = useState<string | null>(null)
-  const handleCategoryChange = (value: string | null) => {
+  const [searchCategory, setSearchCategory] = useState<number | null>(null)
+  const handleCategoryChange = (value: number | null) => {
     setSearchCategory(value)
   };
 
-  const [searchBrand, setSearchBrand] = useState<string | null>(null)
-  const handleBrandChange = (value: string | null) => {
+  const [searchBrand, setSearchBrand] = useState<number | null>(null)
+  const handleBrandChange = (value: number | null) => {
     setSearchBrand(value)
   };
+
+  const getSearchSelector = async (type: number | null) => {
+    try {
+      let material;
+      let categories;
+      let madeBy;
+      let brands;
+      switch (type) {
+        case null:
+          material = await apis.adminProductsApiModule.getProductMaterial()
+          categories = await apis.adminProductsApiModule.getProductCategories()
+          madeBy = await apis.adminProductsApiModule.getProductmadeBy()
+          brands = await apis.adminProductsApiModule.getProductBrand()
+          break;
+        case 1:
+          material = await apis.adminProductsApiModule.getProductMaterial()
+          break;
+        case 2:
+          categories = await apis.adminProductsApiModule.getProductCategories()
+          break;
+        case 3:
+          madeBy = await apis.adminProductsApiModule.getProductmadeBy()
+          break;
+        case 4:
+          brands = await apis.adminProductsApiModule.getProductBrand()
+          break;
+        default:
+          break;
+      }
+      setBrandsList(brands?.data.data || [])
+      setCategoriesList(categories?.data.data || [])
+      setMadeByList(madeBy?.data.data || [])
+      setMaterialList(material?.data.data || [])
+    } catch (err) {
+      error('lấy dữ liệu thất bại')
+    }
+  }
 
   const getPageProductList = async () => {
     try {
@@ -55,7 +142,7 @@ export default function AdminProductMng() {
         madeBy: searchMadeBy,
         category: searchCategory,
         brand: searchBrand,
-        currentPage:current,
+        currentPage: current,
         pageSize
       }
       console.log(searchOption);
@@ -100,11 +187,7 @@ export default function AdminProductMng() {
     });
   };
 
-  const error = (content: string) => {
-    Modal.error({
-      content: content,
-    });
-  };
+
 */
   return (
     <div className='content_container'>
@@ -114,7 +197,7 @@ export default function AdminProductMng() {
           <input type="text" placeholder='Tên sản phẩm' onChange={(e) => { setSearchName(e.target.value) }} />
           <Select
             defaultValue={null}
-            style={{ width: 120, height: 25 }}
+            style={{ width: 140, height: 25 }}
             onChange={handleStatusChange}
             size="small"
             options={[
@@ -125,61 +208,31 @@ export default function AdminProductMng() {
           />
           <Select
             defaultValue={null}
-            style={{ width: 120, height: 25 }}
+            style={{ width: 140, height: 25 }}
             onChange={handleMaterialSelector}
             size="small"
-            options={[
-              { value: null, label: 'Chọn chất liệu' },
-              { value: 'inox', label: 'Inox' },
-              { value: 'aluminum', label: 'Nhôm' },
-              { value: 'other', label: 'Khác' }
-            ]}
+            options={materialOption}
           />
           <Select
             defaultValue={null}
-            style={{ width: 120, height: 25 }}
+            style={{ width: 140, height: 25 }}
             onChange={handleMadeBySelector}
             size="small"
-            options={[
-              { value: null, label: 'Chọn xuất xứ' },
-              { value: 'england', label: 'Anh' },
-              { value: 'china', label: 'Trung Quốc' },
-              { value: 'taiwan', label: 'Đài loan' },
-              { value: 'japan', label: 'Nhật Bản' },
-              { value: 'hongkong', label: 'Hồng Kong' },
-              { value: 'vietnam', label: 'Việt Nam' },
-              { value: 'other', label: 'Khác' },
-            ]}
+            options={madeByOption}
           />
           <Select
             defaultValue={null}
-            style={{ width: 120, height: 25 }}
+            style={{ width: 140, height: 25 }}
             onChange={handleBrandChange}
             size="small"
-            options={[
-              { value: null, label: 'Chọn nhãn hiệu' },
-              { value: 'jett', label: 'Jett' },
-              { value: 'hero', label: 'Hero' },
-              { value: 'fonix', label: 'Fonix' },
-              { value: 'giant', label: 'Giant' },
-              { value: 'life', label: 'Life' },
-              { value: 'hitasa', label: 'Hitasa' },
-              { value: 'other', label: 'Khác' },
-            ]}
+            options={brandsOption}
           />
           <Select
             defaultValue={null}
-            style={{ width: 120, height: 25 }}
+            style={{ width: 140, height: 25 }}
             onChange={handleCategoryChange}
             size="small"
-            options={[
-              { value: null, label: 'Chọn thể loại' },
-              { value: 1, label: 'Xe leo núi' },
-              { value: 2, label: 'Xe đường trường' },
-              { value: 3, label: 'Xe người lớn' },
-              { value: 4, label: 'Xe trẻ em' },
-              { value: 5, label: 'Phụ kiện' },
-            ]}
+            options={categoriesOption}
           />
           <button className='searchBtn' onClick={() => { getPageProductList() }}>Tìm kiếm</button>
           <div className='paginationBar'>
@@ -195,16 +248,16 @@ export default function AdminProductMng() {
       <table className='content_table' border={1}  >
         <thead>
           <tr style={{ height: '40px' }}>
-            <th style={{ width: '50px' }}>ID</th>
-            <th style={{ width: '200px' }}>Tên sản phẩm</th>
-            <th style={{ width: '100px' }}>Giá</th>
-            <th style={{ width: '80px' }}>Trạng thái</th>
-            <th style={{ width: '100px' }}>Thể loại</th>
-            <th style={{ width: '100px' }}>Nhãn hiệu</th>
-            <th style={{ width: '100px' }}>Xuất xứ</th>
-            <th style={{ width: '100px' }}>Chất liệu</th>
-            <th style={{ width: '150px' }}>Thời gian đăng ký</th>
-            <th style={{ width: '150px' }}>Thời gian cập nhật</th>
+            <th>ID</th>
+            <th>Tên sản phẩm</th>
+            <th>Giá</th>
+            <th>Trạng thái</th>
+            <th>Thể loại</th>
+            <th>Nhãn hiệu</th>
+            <th>Xuất xứ</th>
+            <th>Chất liệu</th>
+            <th>Thời gian đăng ký</th>
+            <th>Thời gian cập nhật</th>
             <th>Thao tác</th>
           </tr>
         </thead>
@@ -216,9 +269,9 @@ export default function AdminProductMng() {
               <td>{item.price}</td>
               <td>{item.status ? 'Hoạt động' : 'Tạm khoá'}</td>
               <td>{item.FK_products_categories.categoryName}</td>
-              <td>{item.brand.toUpperCase()}</td>
-              <td>{item.madeBy.toUpperCase()}</td>
-              <td>{item.material.toUpperCase()}</td>
+              <td>{item.FK_products_brands.brandName}</td>
+              <td>{item.FK_products_madeBy.country}</td>
+              <td>{item.FK_products_material.material}</td>
               <td>{handleDateType(item.createAt)}</td>
               <td>{handleDateType(item.updateAt)}</td>
               <td className='btnBar'>
@@ -231,7 +284,7 @@ export default function AdminProductMng() {
         </tbody>
         <tfoot>
           <tr>
-            <th colSpan={6}>Tổng số người dùng</th>
+            <th colSpan={10}>Tổng số người dùng</th>
             <th>{resultCount}</th>
           </tr>
         </tfoot>
