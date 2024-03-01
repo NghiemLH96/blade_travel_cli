@@ -10,6 +10,10 @@ import AdminProductMng from '@/pages/admin/fn-page/products/AdminProductMng'
 import AdminAccMng from '@/pages/admin/fn-page/accounts/AdminAccMng'
 import AdminReceiptMng from '@/pages/admin/fn-page/receipts/AdminReceiptMng'
 import AdminAccsMng from '@/pages/admin/fn-page/admins/AdminAccsMng'
+import MaterialsMng from '@/pages/admin/fn-page/material/MaterialsMng'
+import CategoriesMng from '@/pages/admin/fn-page/categories/CategoriesMng'
+import BrandsMng from '@/pages/admin/fn-page/brand/BrandsMng'
+import MadeByMng from '@/pages/admin/fn-page/madeBy/MadeByMng'
 
 export default function MainRoutes() {
   return (
@@ -22,6 +26,10 @@ export default function MainRoutes() {
             <Route path='/admin' element={<AdminMainPage/>}>
               <Route path='home' element={<AdminHome/>}/>
               <Route path='products' element={<AdminProductMng/>}/>
+              <Route path='materials' element={<MaterialsMng/>}/>
+              <Route path='categories' element={<CategoriesMng/>}/>
+              <Route path='brands' element={<BrandsMng/>}/>
+              <Route path='made-by' element={<MadeByMng/>}/>
               <Route path='admins-account' element={<AdminAccsMng/>}/>
               <Route path='accounts' element={<AdminAccMng/>}/>
               <Route path='receipts' element={<AdminReceiptMng/>}/>

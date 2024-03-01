@@ -1,6 +1,14 @@
 import { apis } from "@/service/apis"
-import { Modal, Pagination, PaginationProps, Select } from "antd"
-import { useEffect, useRef, useState } from "react"
+import { Button, Flex, Input, Modal, PaginationProps, Select, Space, Table, TableProps } from "antd"
+import { useEffect, useState } from "react"
+import { PlusOutlined } from '@ant-design/icons';
+import {
+    ModalForm,
+    ProForm,
+    ProFormSelect,
+    ProFormText,
+} from '@ant-design/pro-components';
+import { Form, message } from 'antd';
 import '../../scss/fnPage.scss'
 
 export default function AdminAccsMng() {
@@ -12,6 +20,17 @@ export default function AdminAccsMng() {
     //Tìm kiếm
     const [searchStatus, setSearchStatus] = useState<boolean | null>(null)
     const [searchByUsername, setSearchByUsername] = useState<string>("")
+    const [searchDepartment, setSearchDepartment] = useState<number | null>(null)
+
+    const clearSearchOption  = () => {
+        setSearchStatus(null),
+        setSearchByUsername(""),
+        setSearchDepartment(null)
+    }
+
+    const handleDepSelectorChange = (value: number | null) =>{
+        setSearchDepartment(value)
+    }
 
     const handleSelectorChange = (value: boolean | null) => {
         setSearchStatus(value)
@@ -21,6 +40,7 @@ export default function AdminAccsMng() {
     const [current, setCurrent] = useState(1);
     useEffect(() => {
         getPageAdminsList()
+        getDepartment()
     }, [current])
 
     const handlePage: PaginationProps['onChange'] = (page) => {
@@ -29,13 +49,27 @@ export default function AdminAccsMng() {
 
     const getPageAdminsList = async () => {
         try {
-            const result = await apis.adminAccsMngApiModule.search({ status: searchStatus, username: searchByUsername, currentPage: current, pageSize })
-            console.log('page', result);
-
+            const result = await apis.adminAccsMngApiModule.search({department:searchDepartment, status: searchStatus, username: searchByUsername, currentPage: current, pageSize })
+            console.log(result);
+            
             setResultCount(result.data.count)
             setRenderAdminsList(result.data.data)
         } catch (error) {
 
+        }
+    }
+
+    const [departmentList, setDepartmentList] = useState([])
+    const getDepartment = async () => {
+        try {
+            const result = await apis.adminAccsMngApiModule.getDepartment()
+            if (result.status == 200) {
+                setDepartmentList(result.data.data)
+            } else {
+                message.error("Lấy dữ liệu thất bại")
+            }
+        } catch (error) {
+            message.error("Lấy dữ liệu thất bại")
         }
     }
 
@@ -87,120 +121,254 @@ export default function AdminAccsMng() {
         });
     };
 
-    //Thay đổi chức vụ
-    const [editPermission, setEditPermission] = useState(false)
-    const [permisChange , setPermisChange] = useState<string>('null')
-    const [editingAdminId , setEditingAdminId] =  useState<number>(0)
-    const [editingAdminName , setEditingAdminName] =  useState<string>('')
-    let editPermisEl = useRef<HTMLInputElement>(null)
-    useEffect(()=>{
-        const handlePopupTrigger = (e:any) => {
-            if (!editPermisEl.current?.contains(e.target)) {
-                setEditPermission(false)
-                setPermisChange('null')
-            }
-        }
-        document.addEventListener('mousedown',handlePopupTrigger)
-    })
+    //searchBar
+    const boxStyle: React.CSSProperties = {
+        width: '100%',
+        height: 50,
+        marginTop: 5,
+        marginBottom: 5,
+        borderRadius: 6,
+        columnGap: 15,
+        border: '1px solid #40a9ff',
+        backgroundColor: '#FFFFFF'
+    };
 
-    const handlePermissionChange = async() => {
-        try {
-            const result = await apis.adminAccsMngApiModule.changeDepartment({id:editingAdminId,department:permisChange})
-            if (result.status == 200) {
-                success(result.data.message)
-                getPageAdminsList()
-            }else{
-                error(result.data.error)
-            }
-        } catch (err) {
-            console.log("lỗi",err);
-            
-        }
+    //table
+
+    interface DataType {
+        id: number;
+        username: string;
+        department: string;
+        status: boolean;
+        createAt: string;
+        updateAt: string
     }
 
+    const columns: TableProps<DataType>['columns'] = [
+        {
+            title: 'ID',
+            dataIndex: 'id',
+            key: 'id',
+        },
+        {
+            title: 'UserName',
+            dataIndex: 'username',
+            key: 'username'
+        },
+        {
+            title: 'Trạng thái',
+            dataIndex: 'status',
+            key: 'status',
+            render: (status) =>
+                <span>{status ? "Hoạt động" : "Khoá"}</span>
+        },
+        {
+            title: 'Chức vụ',
+            dataIndex: 'FK_admins_departments',
+            key: 'FK_admins_departments',
+            render: (FK_admins_departments) =>
+                <span>{FK_admins_departments.department}</span>
+        },
+        {
+            title: 'CreateAt',
+            dataIndex: 'createAt',
+            key: 'createAt',
+            render: (createAt) =>
+                <span>{handleDateType(createAt)}</span>
+        },
+        {
+            title: 'updateAt',
+            dataIndex: 'updateAt',
+            key: 'updateAt',
+            render: (updateAt) =>
+                <span>{handleDateType(updateAt)}</span>
+        },
+        {
+            title: 'Action',
+            key: 'action',
+            render: (record) =>
+                <Space size="middle">
+                    <Button type="primary" danger={record.status == true} size={"small"} onClick={() => { handleLock({ id: record.id, status: record.status }) }}>
+                        {record.status ? "Khoá" : "Mở Khoá"}
+                    </Button>
+                    <ModalForm<{
+                        department: number
+                    }>
+                        title="Thay đổi chức vụ"
+                        trigger={
+                            <Button size="small" type="primary">
+                                Thay đổi chức vụ
+                            </Button>
+                        }
+                        form={permisForm}
+                        autoFocusFirstInput
+                        modalProps={{
+                            destroyOnClose: true,
+                            onCancel: () => console.log('run'),
+                        }}
+                        submitTimeout={2000}
+                        onFinish={async (values) => {
+                            await waitTime(2000);
+                            try {
+                                const result = await apis.adminAccsMngApiModule.changeDepartment({id:record.id,department:values.department})
+                                if (result.status == 200) {
+                                    success(result.data.message)
+                                    getPageAdminsList()
+                                    return true
+                                }else{
+                                    error("Thay đổi chức vụ thất bại")
+                                }
+                            } catch (err) {
+                                error("Thay đổi chức vụ thất bại")
+                            }
+                        }}
+                    >
+                        <ProForm.Group>
+                            <ProFormSelect
+                                initialValue={record.department}
+                                width="md"
+                                options={
+                                    departmentList.map(item => {
+                                        return { value: (item as any).id, label: (item as any).department }
+                                    })
+                                }
+                                name="department"
+                                label="Chức vụ"
+                            />
+                        </ProForm.Group>
+                    </ModalForm>
+                </Space>,
+        }
+    ]
+
+    const data: DataType[] = renderAdminsList
+
+    //Form
+    const [addNewForm] = Form.useForm<{ username: string; passwords: string; department: number }>();
+    const [permisForm] = Form.useForm<{ username: string; passwords: string; department: number }>();
+
+    const waitTime = (time: number = 100) => {
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                resolve(true);
+            }, time);
+        });
+    };
+
     return (
-        <div className='content_container'> 
-            <div ref={editPermisEl} className={editPermission ? "popupWindow permis active" : "popupWindow permis"}>
-                <h2>Thay đổi chức vụ</h2>
-                <p>Xin hãy chọn chức vụ cho quản trị viên {editingAdminName}</p>
-                <select className="permis_selector" value={permisChange} onChange={(e)=>{setPermisChange(e.target.value)}}>
-                        <option value='specialist'>Quản trị viên</option>
-                        <option value='manager'>Quản lý</option>
-                </select>
-                <div className="permis_btnBox">
-                    <button onClick={()=>{handlePermissionChange()}}>Xác nhận</button>
-                </div>
-            </div>
-            <h2 className='content_title'>Quản lý tài khoản quản trị viên</h2>
-            <div className='toolBar'>
-                <div className='searchBar'>
-                    <input className="adminAccs-searchInput" type="text" placeholder='Tên tài khoản' onChange={(e) => { setSearchByUsername(e.target.value) }} />
-                    <label >Trạng thái: </label>
+        <div className='content_container'>
+            <h2 className='content_title'>Danh sách tài khoản quản trị viên</h2>
+            <Flex gap="middle" align="start" vertical>
+                <Flex style={boxStyle} justify={'center'} align={'center'}>
+                    <Input style={{ width: 150 }} value={searchByUsername} size="small" type="text" placeholder='Tên tài khoản' onChange={(e) => { setSearchByUsername(e.target.value) }} />
                     <Select
-                        defaultValue={null}
-                        style={{ width: 120, height: 25 }}
+                        value={searchStatus}
+                        style={{height: 25 }}
                         onChange={handleSelectorChange}
                         options={[
-                            { value: null, label: 'Tất cả' },
+                            { value: null, label: 'Chọn trạng thái' },
                             { value: true, label: 'Hoạt động' },
                             { value: false, label: 'Tạm khoá' },
                         ]}
                     />
-                    <button className='btn search' onClick={() => { getPageAdminsList() }}>Tìm kiếm</button>
-                </div>
+                    <Select
+                        value={searchDepartment}
+                        style={{height: 25 }}
+                        onChange={handleDepSelectorChange}
+                        options={[
+                            { value: null, label: "Chọn chức vụ" }
+                        ].concat(departmentList.map(item => {
+                            return { value: (item as any).id, label: (item as any).department }
+                        }))
+
+                        }
+                    />
+                    <Button danger size={"small"} onClick={() => { getPageAdminsList() }}>
+                        Tìm kiếm
+                    </Button>
+                    <Button type="default" size={"small"} onClick={() => {clearSearchOption() }}>
+                        Làm mới
+                    </Button>
+                    <ModalForm<{
+                        username: string;
+                        passwords: string;
+                        department: number
+                    }>
+                        title="Thêm mới"
+                        trigger={
+                            <Button size="small" type="primary">
+                                <PlusOutlined />
+                                Thêm mới
+                            </Button>
+                        }
+                        form={addNewForm}
+                        autoFocusFirstInput
+                        modalProps={{
+                            destroyOnClose: true,
+                            onCancel: () => console.log('run'),
+                        }}
+                        submitTimeout={2000}
+                        onFinish={async (values) => {
+                            await waitTime(2000);
+                            try {
+                                const addNewDetail = {
+                                    username: values.username,
+                                    passwords: values.passwords,
+                                    department: values.department
+                                }
+                                const result = await apis.adminAccsMngApiModule.createAdmin(addNewDetail)
+                                if (result.status == 200) {
+                                    message.success(result.data.message)
+                                    getPageAdminsList()
+                                    return true
+                                } else if (result.status == 214) {
+                                    message.error(result.data.message)
+                                } else {
+                                    message.error("Khởi tạo thất bại")
+                                }
+                            } catch (error) {
+                                message.error("Khởi tạo thất bại")
+                            }
+                        }}
+                    >
+                        <ProForm.Group>
+                            <ProFormText
+                                width="md"
+                                name="username"
+                                label="Tài khoản quản trị viên"
+                                tooltip="Không được để trống"
+                                placeholder="Tài khoản"
+                            />
+
+                            <ProFormText
+                                width="md"
+                                name="passwords"
+                                label="Mật khẩu"
+                                placeholder="Mật khẩu quản trị viên"
+                            />
+                            <ProFormSelect
+                                width="md"
+                                options={
+                                    departmentList.map(item => {
+                                        return { value: (item as any).id, label: (item as any).department }
+                                    })
+                                }
+                                name="department"
+                                label="Chức vụ"
+                            />
+                        </ProForm.Group>
+                    </ModalForm>
+                </Flex>
+            </Flex>
+            <div className="table-container">
+                <Table
+                    columns={columns}
+                    rowKey={"id"}
+                    pagination={{ position: ["bottomLeft"], pageSize: 10, size: 'default', onChange: handlePage, total: resultCount }}
+                    dataSource={data}
+                />
             </div>
-            <table className='content_table' border={1}  >
-                <thead>
-                    <tr style={{ height: '40px' }}>
-                        <th style={{ width: '50px' }}>STT</th>
-                        <th style={{ width: '50px' }}>ID</th>
-                        <th>Tên tài khoản</th>
-                        <th>Trạng thái</th>
-                        <th>Chức vụ</th>
-                        <th>Thời gian đăng ký</th>
-                        <th>Thời gian cập nhật</th>
-                        <th>Thao tác</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {renderAdminsList && renderAdminsList.map((admin,index) => (
-                        <tr className='user_item' key={admin.id} style={{ height: '20px' }}>
-                            <td>{(current-1)*pageSize+index+1}</td>
-                            <td>{admin.id}</td>
-                            <td>{admin.username}</td>
-                            <td>{admin.status ? 'Hoạt động' : 'Tạm khoá'}</td>
-                            <td>{admin.department == 'specialist' ? "Quản trị viên" : admin.department == 'manager' ? "Quản lý" : "Giám đốc"}</td>
-                            <td>{handleDateType(admin.createAt)}</td>
-                            <td>{handleDateType(admin.updateAt)}</td>
-                            <td className='btnBar'>
-                                <button style={admin.status ? { backgroundColor: 'red' } : { backgroundColor: 'green' }}  onClick={() => { handleLock({ id: admin.id, status: admin.status }) }}>{admin.status ? 'Khoá' : 'Mở khoá'}</button>
-                                <button style={{ backgroundColor: 'green' }} disabled={editPermission ? true : false} onClick={() => { 
-                                    setEditPermission(true)
-                                    setEditingAdminId(admin.id)
-                                    setEditingAdminName(admin.username)
-                                    setPermisChange(admin.department)
-                                    console.log(admin.department);
-                                    
-                                     }}>Thay đổi chức vụ</button>
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
-                <tfoot>
-                    <tr>
-                        <th colSpan={7}>Tổng số người dùng</th>
-                        <th>{resultCount}</th>
-                    </tr>
-                </tfoot>
-            </table>
-            <div className='paginationBar'>
-                        <Pagination defaultCurrent={1}
-                            total={resultCount}
-                            pageSize={pageSize}
-                            size='small'
-                            onChange={handlePage}
-                        />
-                    </div>
+
         </div>
     )
 }

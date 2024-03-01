@@ -2,8 +2,8 @@ import { useEffect, useState } from 'react';
 import '../../scss/fnPage.scss'
 import { apis } from '@/service/apis';
 import Modal from 'antd/es/modal';
-import PhoneEditProp from './components/PhoneEditProp';
-import { Pagination, PaginationProps, Select } from 'antd';
+import { Button, Flex, Form, Input, PaginationProps, Select, Space, Table, TableProps } from 'antd';
+import { ModalForm, ProForm, ProFormText } from '@ant-design/pro-components';
 
 export default function AdminAccMng() {
   const [renderUserList, setRenderUserList] = useState<Array<any>>([])
@@ -14,6 +14,12 @@ export default function AdminAccMng() {
     const [searchStatus , setSearchStatus] = useState<boolean|null>(null)
     const [searchByEmail , setSearchByEmail] = useState<string>("")
     const [searchByPhone , setSearchByPhone] = useState<string>("")
+
+    const clearSearchOption = () => {
+      setSearchStatus(null)
+      setSearchByEmail("")
+      setSearchByPhone("")
+    }
   
     const handleSelectorChange = (value: boolean|null) => {
       setSearchStatus(value)
@@ -112,78 +118,186 @@ export default function AdminAccMng() {
     });
   };
 
-  //Sửa số điện thoại
-  const [showPhoneEdit, setShowPhoneEdit] = useState(false)
-  const [editingUserId, setEditingUserId] = useState(0)
+    //searchBar
+    const boxStyle: React.CSSProperties = {
+      width: '100%',
+      height: 50,
+      marginTop: 5,
+      marginBottom: 5,
+      borderRadius: 6,
+      columnGap:15,
+      border: '1px solid #40a9ff',
+      backgroundColor: '#FFFFFF'
+  };
 
+  //table
 
+  interface DataType {
+      id: number;
+      email: string;
+      email_verify: boolean;
+      status: boolean;
+      createAt: string;
+      updateAt: string
+  }
+
+  const columns: TableProps<DataType>['columns'] = [
+      {
+          title: 'ID',
+          dataIndex: 'id',
+          key: 'id',
+      },
+      {
+          title: 'Email',
+          dataIndex: 'email',
+          key: 'email'
+      },
+      {
+          title: 'Số điện thoại',
+          dataIndex: 'phone',
+          key: 'phone'
+      },
+      {
+          title: 'Trạng thái',
+          dataIndex: 'status',
+          key: 'status',
+          render: (status) =>
+              <span>{status ? "Hoạt động" : "Khoá"}</span>
+      },
+      {
+          title: 'Xác thực email',
+          dataIndex: 'email_verify',
+          key: 'email_verify',
+          render: (email_verify) =>
+              <span>{email_verify ? "Đã xác thực" : "chưa xác thực"}</span>
+      },
+      {
+          title: 'Thời gian đăng ký',
+          dataIndex: 'createAt',
+          key: 'createAt',
+          render: (createAt) =>
+              <span>{handleDateType(createAt)}</span>
+      },
+      {
+          title: 'Thời gian cập nhật',
+          dataIndex: 'updateAt',
+          key: 'updateAt',
+          render: (updateAt) =>
+              <span>{handleDateType(updateAt)}</span>
+      },
+      {
+          title: 'Action',
+          key: 'action',
+          render: (record) =>
+              <Space size="middle">
+                  <Button type="primary" danger={record.status == true} size={"small"} onClick={() => { handleLock({ userId: record.id, userStatus: record.status }) }}>
+                      {record.status ? "Khoá" : "Mở Khoá"}
+                  </Button>
+                  <ModalForm<{
+                        phone: string
+                    }>
+                        title="Cập nhật số điện thoại"
+                        trigger={
+                            <Button size="small" type="primary">
+                                Cập nhật số điện thoại
+                            </Button>
+                        }
+                        form={editPhoneForm}
+                        autoFocusFirstInput
+                        modalProps={{
+                            destroyOnClose: true,
+                            onCancel: () => console.log('run'),
+                        }}
+                        submitTimeout={2000}
+                        onFinish={async (values) => {
+                            await waitTime(2000);
+                            if (!values.phone) {
+                              error("Số điện thoại không được để trống")
+                              return false
+                            }
+                            
+                            if (values.phone.length != 10) {
+                              error("Số điện thoại phải đủ 10 số")
+                              return false
+                            }
+                            try {
+                              const result = await apis.usersMngApiModule.updatePhone(record.id,values.phone)
+                              if (result.status == 200) {
+                                success(result.data.message)
+                                getPageUserList()
+                                return true
+                              }else{
+                                error("Cập nhật số điện thoại thất bại")
+                              }
+                            } catch (err) {
+                              error("Cập nhật số điện thoại thất bại")
+                            }
+                            
+                            
+                        }}
+                    >
+                        <ProForm.Group>
+                          <ProFormText
+                                width="md"
+                                name="phone"
+                                label="Số điện thoại mới"
+                                tooltip="Số điện thoại chuẩn là 10 số"
+                                placeholder="Số điện thoại"
+                            />
+                        </ProForm.Group>
+                    </ModalForm>
+                  <Button danger size={"small"} onClick={() => { handleResetPW(record.id, record.email) }}>
+                      Đặt lại mật khẩu
+                  </Button>
+              </Space>,
+      }
+  ]
+
+  const data: DataType[] = renderUserList
+
+  const [editPhoneForm] = Form.useForm<{ phone:string }>();
+
+  const waitTime = (time: number = 100) => {
+      return new Promise((resolve) => {
+          setTimeout(() => {
+              resolve(true);
+          }, time);
+      });
+  };
   return (
     <div className='content_container'>
-      {showPhoneEdit && <PhoneEditProp showPhoneEdit={showPhoneEdit} setShowPhoneEdit={setShowPhoneEdit} getPageUserList={getPageUserList} editingUserId={editingUserId} />}
       <h2 className='content_title'>Quản lý tài khoản người dùng</h2>
       <div className='toolBar'>
-        <div className='searchBar'>
-          <input type="text" placeholder='Tên tài khoản' onChange={(e)=>{setSearchByEmail(e.target.value)}}/>
-          <input type="text" placeholder='Số điện thoại' onChange={(e)=>{setSearchByPhone(e.target.value)}}/>
-          <Select
-            defaultValue={null}
-            style={{ width: 120 , height: 25}}
-            onChange={handleSelectorChange}
-            options={[
-              { value: null, label: 'Chọn trạng thái' },
-              { value: true, label: 'Hoạt động' },
-              { value: false, label: 'Tạm khoá' },
-            ]}
-          />
-          <button className='btn search' onClick={()=>{getPageUserList()}}>Tìm kiếm</button>
-        </div>
       </div>
-      <table className='content_table' border={1}  >
-        <thead>
-          <tr style={{ height: '40px' }}>
-            <th  style={{ width: '50px' }}>STT</th>
-            <th style={{ width: '50px' }}>ID</th>
-            <th style={{ width: '200px' }}>Tên tài khoản</th>
-            <th style={{ width: '80px' }}>Trạng thái</th>
-            <th style={{ width: '100px' }}>Số điện thoại</th>
-            <th style={{ width: '150px' }}>Thời gian đăng ký</th>
-            <th style={{ width: '150px' }}>Thời gian cập nhật</th>
-            <th>Thao tác</th>
-          </tr>
-        </thead>
-        <tbody>
-          {renderUserList && renderUserList.map((user,index) => (
-            <tr className='user_item' key={user.id} style={{ height: '20px' , maxHeight: '20px'}}>
-              <td>{(current-1)*pageSize+index+1}</td>
-              <td>{user.id}</td>
-              <td>{user.email}</td>
-              <td>{user.status ? 'Hoạt động' : 'Tạm khoá'}</td>
-              <td>{user.phone}</td>
-              <td>{handleDateType(user.createAt)}</td>
-              <td>{handleDateType(user.updateAt)}</td>
-              <td className='btnBar'>
-                <button style={user.status ? { backgroundColor: 'red' } : { backgroundColor: 'green' }} onClick={() => { handleLock({ userId: user.id, userStatus: user.status }) }}>{user.status ? 'Khoá' : 'Mở khoá'}</button>
-                <button style={{ backgroundColor: 'green' }} onClick={() => { setShowPhoneEdit(true), setEditingUserId(user.id) }}>Sửa số điện thoại</button>
-                <button style={{ backgroundColor: 'orange' }} onClick={() => { handleResetPW(user.id, user.email) }}>Đặt lại mật khẩu</button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-        <tfoot>
-          <tr>
-            <th colSpan={7}>Tổng số người dùng</th>
-            <th>{resultCount}</th>
-          </tr>
-        </tfoot>
-      </table>
-      <div className='paginationBar'>
-            <Pagination defaultCurrent={1} 
-            total={resultCount} 
-            pageSize={10}
-            size='small' 
-            onChange={handlePage} 
-            />
-          </div>
+          <Flex gap="middle" align="start" vertical>
+                <Flex style={boxStyle} justify={'center'}  align={'center'}>
+                    <Input style={{ width: 150 }} value={searchByEmail} size="small" type="text" placeholder='Tên tài khoản' onChange={(e) => { setSearchByEmail(e.target.value) }} />
+                    <Input style={{ width: 150 }} value={searchByPhone} size="small" type="text" placeholder='Số điện thoại' onChange={(e) => { setSearchByPhone(e.target.value) }} />
+                    <Select
+                        value={searchStatus}
+                        style={{ width: 120, height: 25 }}
+                        onChange={handleSelectorChange}
+                        options={[
+                            { value: null, label: 'Tất cả' },
+                            { value: true, label: 'Hoạt động' },
+                            { value: false, label: 'Tạm khoá' },
+                        ]}
+                    />
+                    <Button danger size={"small"} onClick={() => { getPageUserList() }}>
+                        Tìm kiếm
+                    </Button>
+                    <Button type="default" size={"small"} onClick={() => { clearSearchOption() }}>
+                        Làm mới
+                    </Button>
+                </Flex>
+            </Flex>
+            <div className="table-container">
+                <Table
+                    columns={columns}
+                    pagination={{ position: ["bottomLeft"], pageSize: 10, size: 'default', onChange: handlePage, total: resultCount }}
+                    dataSource={data}
+                />
+            </div>
     </div>
   )
 }

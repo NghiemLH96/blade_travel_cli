@@ -1,7 +1,12 @@
 import logo from '@pics/logo.png'
 import './adminHeader.scss'
+import { Button } from 'antd'
+import {
+    MenuFoldOutlined,
+    MenuUnfoldOutlined,
+} from '@ant-design/icons';
 
-export default function AdminHeader({setMenuListState,menuListState}: {setMenuListState: any,menuListState:boolean}) {
+export default function AdminHeader({ toggleCollapsed, collapsed }: { collapsed: boolean, toggleCollapsed: any}) {
     return (
         <header>
             <div className="header_left">
@@ -9,12 +14,10 @@ export default function AdminHeader({setMenuListState,menuListState}: {setMenuLi
                 <span className='header_slogan'>Dash Board</span>
             </div>
             <div className="header_right">
-                <div className='menuBox' onClick={()=>{
-                    setMenuListState(!menuListState)
-                }}>
-                    <span className="material-symbols-outlined icon">
-                        menu
-                    </span>
+                <div className='menuBox'>
+                        <Button onClick={toggleCollapsed} style={{color:'#FFFFFF',backgroundColor:'transparent'}}>
+                            {collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+                        </Button>
                 </div>
                 <div className='toolBox'>
                     <span className="material-symbols-outlined icon">

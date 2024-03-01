@@ -10,108 +10,11 @@
     .content_title{
         color: #FFFFFF;
     }
-    .toolBar{
-        width: 100%;
-        height: 40px;
+    .table-container{
+        width: auto;
+        height: auto;
         background-color: #FFFFFF;
-        margin: 10px 0px;
-        padding: 0px 10px;
         border-radius: 15px;
-        display: flex;
-        align-items: center;
-        .searchBar{
-            width: 100%;
-            display: flex;
-            justify-content: end;
-            column-gap: 10px;
-            input{
-                height: 25px;
-                width: auto;
-                border-radius: 10px;
-                outline: none;
-                border:none;
-                background-color: #e6e6ec;
-                padding: 10px;
-            }
-            label{
-                line-height: 25px;
-            }
-            .btn{
-                width: 80px;
-                height: 26px;
-                border-radius: 8px;
-                color: #292929;
-                border: none;
-                z-index: 10;
-                cursor: pointer;
-                &:active{
-                    color: #ffbd60;
-                }
-                &.search{
-                    background-color: #a9a1fe;
-                }
-                &.add{
-                    background-color: #36e7ca;
-                }
-            }
-        }
-    }
-    .content_table{
-        background-color: #FFFFFF;
-        border-radius: 10px;
-        border-style: solid;
-        border-color: rgb(224, 224, 224);
-        border-collapse: collapse;
-        overflow: hidden;
-        width: 100%;
-        min-height: 80vh;
-        font-size: 13px;
-        thead{
-            height: 30px;
-        }
-        tbody{
-            height: 400px;
-            text-align: center;
-            .user_item{
-                &:hover{
-                    background-color: #dfdff8;
-                }
-                td{
-                    padding: 5px;
-                }
-            }
-            .btnBar{
-                width: 320px;
-                padding: 5px 0px;
-                button{
-                    font-size: 10px;
-                    width: 85px;
-                    height: 23px;
-                    margin: 5px 5px;
-                    outline: none;
-                    border: none;
-                    border-radius: 5px;
-                    color: #FFFFFF;
-                    cursor: pointer;
-                    &:hover{
-                        color: rgb(141, 214, 245);
-                    }
-                }
-            }
-        }
-        tfoot{
-            height: 30px;
-            text-align: center;
-        }
-    }
-    .paginationBar{
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        background-color: #FFFFFF;
-        height: 30px;
-        margin: 10px 0px;
-        border-radius: 10px;
     }
 }
 
