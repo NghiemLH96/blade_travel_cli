@@ -267,6 +267,8 @@ useEffect(()=>{
       })
       let uploadAvatarFormData = new FormData;
       for (let i in originObjImgList) {
+        console.log(originObjImgList[i]);
+        
         uploadAvatarFormData.append('uploadImgs', originObjImgList[i] as any)
       }
       uploadAvatarFormData.append('productId', String(id))
@@ -440,6 +442,7 @@ useEffect(()=>{
     brand: number | null,
     madeBy: number | null
   }>();
+  
   const [addNewAvatar, setAddNewAvatar] = useState<UploadFile | null>()
 
   const handleAddAvatar: UploadProps['onChange'] = (info) => {
