@@ -319,7 +319,7 @@ useEffect(()=>{
       dataIndex: 'avatar',
       key: 'avatar',
       render: (avatar) =>
-        <img style={{ width: "70px", height: "70px" }} src={`http://127.0.0.1:3000/imgs/product-avatar/${avatar}`} alt="" />
+        <img style={{ width: "70px", height: "70px" }} src={avatar} alt="" />
     },{
       title: 'Trạng thái',
       dataIndex: 'status',
