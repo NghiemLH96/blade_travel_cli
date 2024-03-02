@@ -198,11 +198,15 @@ export default function AuthenPage() {
     let userFormData = new FormData();
     userFormData.append("data", JSON.stringify(newUserDetail))
     userFormData.append("avatar", avatarFile as any)
-    const result = await apis.userApiModule.createNew(userFormData)
-    if (result.status == 200) {
-      document.querySelector(".authSite_right")?.classList.add("active_success")
-    } else {
-      errorMessage(result.data.message)
+    try {
+      const result = await apis.userApiModule.createNew(userFormData)
+      if (result.status == 200) {
+        document.querySelector(".authSite_right")?.classList.add("active_success")
+      } else {
+        errorMessage(result.data.message)
+      }
+    } catch (error) {
+      errorMessage(String(error))
     }
   }
   /*********************************************************************************************************/
