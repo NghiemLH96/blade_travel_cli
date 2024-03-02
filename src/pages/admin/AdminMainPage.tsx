@@ -1,16 +1,49 @@
 import { Outlet, useNavigate } from "react-router-dom";
 import AdminHeader from "./components/header/AdminHeader";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   AppstoreOutlined,
   MailOutlined,
 } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
-import { Menu } from 'antd';
+import { Menu, message } from 'antd';
 import './scss/adminMain.scss'
+import { apis } from "@/service/apis";
 
 export default function AdminMainPage() {
   const navigate = useNavigate()
+  useEffect(() => {
+      checkLogin()
+  }, [])
+  //checkLogin
+  const checkLogin = async () => {
+      const adtkn = localStorage.getItem('adtkn')
+      if (adtkn) {
+          try {
+            const result = await apis.adminApiModule.checkLogin(adtkn)
+            console.log(result.status);
+            
+            if(result.status == 215){
+              navigate("/admin-auth")
+              localStorage.removeItem("adtkn")
+              message.warning(result.data.message)
+              return
+            }
+            if(result.status == 200){
+              message.success(result.data.message)
+              return
+            }
+            {
+              message.warning("Chỉ quản trị viên mới được truy cập")
+              navigate("/admin-auth")
+            }
+          } catch (error) {
+            
+          }
+      }
+      navigate("/admin-auth")
+      message.warning("Chỉ quản trị viên mới được truy cập")
+  }
 
   type MenuItem = Required<MenuProps>['items'][number];
   function getItem(
