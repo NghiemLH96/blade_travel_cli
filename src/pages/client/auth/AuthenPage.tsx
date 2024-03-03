@@ -1,7 +1,5 @@
 import { useEffect, useState } from "react"
 import { useNavigate, useParams } from "react-router-dom"
-import authImg from '@pics/authen.jpg'
-import logo from '@pics/logo_b.png'
 import './authPage.scss'
 import { message , Modal } from 'antd';
 import { apis } from "@/service/apis";
@@ -238,8 +236,8 @@ export default function AuthenPage() {
       {contextHolder}
       <div className="authSite_container">
         <div className="authSite_left">
-          <img className="authSite_logo" src={logo} alt="" />
-          <img className="authSite_backGround" src={authImg} alt="" />
+          <img className="authSite_logo" src="https://firebasestorage.googleapis.com/v0/b/blade-firebase.appspot.com/o/assets%2Flogo_b.png?alt=media&token=90278c26-bea6-4640-8499-5dfde55a41d8" alt="" />
+          <img className="authSite_backGround" src={"https://firebasestorage.googleapis.com/v0/b/blade-firebase.appspot.com/o/assets%2Fyoung-man-cycling-skatepark-low-angle-shot.jpg?alt=media&token=899e8907-7e86-40f0-b2dc-724c2dde4abe"} alt="" />
         </div>
         <div className="authSite_right">
           <div className="login_container">

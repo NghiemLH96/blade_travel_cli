@@ -4,13 +4,15 @@ header{
     position: relative;
     display: flex;
     flex-direction: column;
+    align-items: center;
     width: 100%;
-    height: 400px;
+    height: 600px;
     .header_background{
         width: 100%;
-        height: 400px;
+        height: 600px;
         object-fit: cover;
-        object-position: 0px 80%;
+        object-position: 50% 30%;
+        overflow: hidden;
         position: absolute;
     }
     .header_top{
@@ -19,11 +21,9 @@ header{
         align-items: center;
         width: 100%;
         height: 100px;
-        backdrop-filter: blur(5px);
+        color: $font_color;
+        z-index: 1;
         transition: all 1s;
-        &:hover{
-            background-color: black;
-        }
         .header_top_left{
             display: flex;
             align-items: center;
@@ -40,14 +40,13 @@ header{
             align-items: center;
             flex: 2;
             height: 100%;
-            color: #FFFFFF;
             font-size: $font_l;
             font-family: $navbarFont;
             .nav{
                 overflow: hidden;
                 cursor: pointer;
                 .navLine{
-                    background-color: #FFFFFF;
+                    background-color: $font_color;
                     border-radius: 15px;
                     height: 3px;
                     transform: translateX(-100%);
@@ -73,7 +72,6 @@ header{
                 width: 50px;
                 .languageIcon{
                     font-size: $font_l;
-                    color: #FFFFFF;
                     cursor: pointer;
                 }
                 .langMenu_dropDown{
@@ -82,7 +80,7 @@ header{
                     position: absolute;
                     width: 120px;
                     height: auto;
-                    top:70%;
+                    top:12%;
                     right:15%;
                     border-radius: 10px;
                     background-color: #FFFFFF;
@@ -101,7 +99,6 @@ header{
                         cursor: pointer;
                         &:hover{
                             background-color: #FF385C;
-                            color: #FFFFFF;
                         }
                     }
                 }
@@ -125,12 +122,11 @@ header{
                     align-items: center;
                     justify-content: space-evenly;
                     border-radius: 100px;
-                    border: 2px #FFFFFF solid;
+                    border: 2px #010810 solid;
                     width: 100%;
                     height: 50px;
                     .menuIcon{
                         font-size: $font_l;
-                        color: #FFFFFF;
                     }
                     .userAvatar{
                         width: 35px;
@@ -146,7 +142,7 @@ header{
                     width: 180px;
                     height: auto;
                     margin: 15px;
-                    top:65%;
+                    top:12%;
                     right:8%;
                     border-radius: 10px;
                     background-color: #FFFFFF;
@@ -164,87 +160,8 @@ header{
                         cursor: pointer;
                         &:hover{
                             background-color: #FF385C;
-                            color: #FFFFFF;
                         }
                     }
-                }
-            }
-        }
-    }
-    .header_bottom{
-        width: 100%;
-        height: 50px;
-        position: absolute;
-        bottom: -30px;
-        display: flex;
-        justify-content: center;
-        .header_searchBar{
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            column-gap: 5px;
-            width: 70%;
-            height: 100%;
-            background-color: #FFB700;
-            border-radius: 10px;
-            padding: 5px;
-            .selector{
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                flex: 3;
-                width: 100%;
-                height: 100%;
-                &.area{
-                    width: 100%;
-                    height: 100%;
-                    .areaInput{
-                        width: 100%;
-                        height: 100%;
-                        outline: none;
-                        border: none;
-                        border-radius: 5px;
-                        padding: 10px;
-                        font-size: 17px;
-                        &::placeholder{
-                            padding: 10px;
-                        }
-                    }
-                }
-                .dateInput{
-                    width: 100%;
-                    height: 100%;
-                    background-color: #FFFFFF;
-                    font-size: 17px;
-                    line-height: 10px;
-                    padding: 15px;
-                    border-radius: 5px;
-                    cursor: pointer;
-                }
-                .paxInput{
-                    width: 100%;
-                    height: 100%;
-                    background-color: #FFFFFF;
-                    font-size: 17px;
-                    line-height: 10px;
-                    padding: 15px;
-                    border-radius: 5px;
-                    cursor: pointer;
-                }
-            }
-            .searchBox{
-                flex: 1;
-                width: 100%;
-                height: 100%; 
-                .searchBtn{
-                    width: 100%;
-                    height: 100%;
-                    background-color: #010810;
-                    color: #FFFFFF;
-                    border-radius: 5px;
-                    border: none;
-                    font-size: 17px;
-                    cursor: pointer;
                 }
             }
         }

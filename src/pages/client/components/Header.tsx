@@ -1,9 +1,6 @@
 import { useNavigate } from 'react-router-dom'
-import banner1 from '@pics/Banner1.jpg'
-import logo from '@pics/logo.png'
 import { useEffect, useRef, useState } from 'react'
-import { DatePicker, Modal } from 'antd';
-import locale from 'antd/es/date-picker/locale/vi_VN'
+import { Modal } from 'antd';
 import './scss/header.scss'
 import { useAppDispatch, useAppSelector } from '@/store/store';
 import { userAction } from '@/store/slices/loginDetail.slice';
@@ -29,13 +26,6 @@ export default function Header() {
       };
 
     const loginUser = useAppSelector(state => state.user.data);
-
-
-    const { RangePicker } = DatePicker;
-    const [startDate, setStartDate] = useState("")
-    const [endDate, setEndDate] = useState("")
-    console.log(startDate);
-    console.log(endDate);
     
     
 
@@ -58,10 +48,10 @@ export default function Header() {
     })
     return (
         <header>
-            <img className='header_background' src={banner1} alt="" />
+            <img className='header_background' src="https://firebasestorage.googleapis.com/v0/b/blade-firebase.appspot.com/o/assets%2Fphoto-1528629297340-d1d466945dc5.avif?alt=media&token=84918ca7-6e27-4ee0-925e-2e2414274b2e" alt="" />
             <div className='header_top'>
                 <section className='header_top_left'>
-                    <img className='logo' src={logo} alt="" />
+                    <img className='logo' src="https://firebasestorage.googleapis.com/v0/b/blade-firebase.appspot.com/o/assets%2Flogo_b.png?alt=media&token=90278c26-bea6-4640-8499-5dfde55a41d8" alt="" />
                 </section>
                 <section className='header_top_middle'>
                     <div className='nav'>
@@ -69,11 +59,7 @@ export default function Header() {
                         <div className='navLine'></div>
                     </div>
                     <div className='nav'>
-                        <span>Khách Sạn</span>
-                        <div className='navLine'></div>
-                    </div>
-                    <div className='nav'>
-                        <span>Tour</span>
+                        <span>Sản phẩm</span>
                         <div className='navLine'></div>
                     </div>
                     <div className='nav'>
@@ -112,27 +98,6 @@ export default function Header() {
                     </div>
                 </section>
             </div>
-            <section className="header_bottom">
-                <div className='header_searchBar'>
-                    <div className='selector area'>
-                        <input className='areaInput' type="text" />
-                    </div>
-                    <div className='selector date'>
-                        <RangePicker locale={locale} className='dateInput' onChange={(e => {
-                            setStartDate(`${e?.[0]?.get('date')}/${String(Number(e?.[0]?.get('month')) + 1)}/${e?.[0]?.get('year')}`)
-                            setEndDate(`${e?.[1]?.get('date')}/${String(Number(e?.[1]?.get('month')) + 1)}/${e?.[1]?.get('year')}`)
-                        })} />
-                    </div>
-                    <div className='selector pax'>
-                        <div className='paxInput'>
-                            1 người lớn , 0 trẻ em , 1 phòng
-                        </div>
-                    </div>
-                    <div className='searchBox'>
-                        <button className='searchBtn'>Tìm kiếm</button>
-                    </div>
-                </div>
-            </section>
         </header>
     )
 }

@@ -30,7 +30,6 @@ export default function AdminMainPage() {
               return
             }
             if(result.status == 200){
-              message.success(result.data.message)
               return
             }
             {

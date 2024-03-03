@@ -1,7 +1,9 @@
-import { Button, Flex, Input, Modal, Select, Space, Table, TableProps, message } from 'antd'
+import { Button, Flex, Form, Input, Modal, Select, Space, Table, TableProps, Upload, UploadFile, UploadProps, message } from 'antd'
 import '../../scss/fnPage.scss'
+import { PlusOutlined } from '@ant-design/icons';
 import { useEffect, useState } from 'react';
 import { apis } from '@/service/apis';
+import { ModalForm, ProForm, ProFormText } from '@ant-design/pro-components';
 
 
 
@@ -51,46 +53,7 @@ export default function BrandsMng() {
     }
 
     //Thêm mới
-    const [addNewBrand, setAddNewBrand] = useState("")
 
-    const handleAddNew = async () => {
-        try {
-            if (addNewBrand == "") {
-                message.warning("Tên chất liệu thêm mới không được để trống");
-                return;
-            } else {
-                let existFlag = false;
-                brandList.map(item => {
-                    if ((item as any).brandName == addNewBrand) {
-                        message.warning("Tên chất liệu thêm mới đã tồn tại");
-                        existFlag = true;
-                        return;
-                    }
-                });
-                if (existFlag) {
-                    return;
-                }
-            }
-            Modal.confirm({
-                title: "Xác nhận thêm mới nhãn hiệu",
-                content: "Bạn chắc là muốn thêm nhãn hiệu này chứ?",
-                onOk: async () => {
-                    const result = await apis.adminProductsApiModule.addNewBrand(addNewBrand)
-                    if (result.status == 200) {
-                        message.success(result.data.message)
-                        handleGetBrands()
-                        setAddNewBrand("")
-                    } else {
-                        message.error("Server bận!")
-                    }
-                },
-                okText: "Xác định",
-                cancelText: "Huỷ"
-            })
-        } catch (error) {
-            message.error("Server bận!")
-        }
-    }
 
     //time format
     const handleDateType = (timeString: string) => {
@@ -173,7 +136,8 @@ export default function BrandsMng() {
         department: string;
         status: boolean;
         createAt: string;
-        updateAt: string
+        updateAt: string;
+        brandLogo:string;
     }
 
     const columns: TableProps<DataType>['columns'] = [
@@ -186,6 +150,13 @@ export default function BrandsMng() {
             title: 'Nhãn hiệu',
             dataIndex: 'brandName',
             key: 'brandName'
+        },
+        {
+            title: 'Ảnh thương hiệu',
+            dataIndex: 'brandLogo',
+            key: 'brandLogo',
+            render: (brandLogo) =>
+                <img style={{width:"50px"}} src={brandLogo} alt="" />
         },
         {
             title: 'Trạng thái',
@@ -223,6 +194,43 @@ export default function BrandsMng() {
         }
     ]
     const data: DataType[] = renderBrandList
+
+    //addNewForm
+
+    const waitTime = (time: number = 100) => {
+        return new Promise((resolve) => {
+          setTimeout(() => {
+            resolve(true);
+          }, time);
+        });
+      };
+      
+    const [addNewBrandForm] = Form.useForm<{
+        brandName:string
+      }>();
+      
+      const [addNewAvatar, setAddNewAvatar] = useState<UploadFile | null>()
+      const [addNewChoicePic, setAddNewwChoicePic] = useState<UploadFile | null>()
+    
+      const handleAddAvatar: UploadProps['onChange'] = (info) => {
+        if (info.file.status === 'done') {
+          setAddNewAvatar(info.fileList[0].originFileObj)
+        }
+      };
+    
+      const handleRemoveAvatar: UploadProps['onRemove'] = () => {
+            setAddNewAvatar(null);
+      };
+
+      const handleAddChoicePic: UploadProps['onChange'] = (info) => {
+        if (info.file.status === 'done') {
+            setAddNewwChoicePic(info.fileList[0].originFileObj)
+        }
+      };
+    
+      const handleRemoveChoicePic: UploadProps['onRemove'] = () => {
+        setAddNewwChoicePic(null);
+      };
     return (
         <div className='content_container'>
             <h2 className='content_title'>Danh sách nhãn hiệu</h2>
@@ -245,10 +253,100 @@ export default function BrandsMng() {
                     <Button type="default" size={"small"} onClick={() => { clearSearchOption() }}>
                         Làm mới
                     </Button>
-                    <Input style={{ width: 150 }} size="small" type="text" value={addNewBrand} placeholder='Nhãn hiệu mới' onChange={(e) => { setAddNewBrand(e.target.value) }} />
-                    <Button type="primary" size={"small"} onClick={() => { handleAddNew() }}>
-                        Thêm mới
-                    </Button>
+                    <ModalForm<{
+            brandName:string
+          }>
+            title="Thêm mới"
+            trigger={
+              <Button size="small" type="primary">
+                <PlusOutlined />
+                Thêm mới
+              </Button>
+            }
+            form={addNewBrandForm}
+            autoFocusFirstInput
+            variant="filled"
+            modalProps={{
+              destroyOnClose: true,
+              onCancel: () => console.log('run'),
+            }}
+            submitTimeout={2000}
+            onFinish={async (values) => {
+              await waitTime(2000);
+              if (!values.brandName) {
+                message.warning("Tên nhãn hiệu không được để trống")
+                return
+              }else{
+                brandList.map(item => {
+                    if ((item as any).brandName == values.brandName) {
+                        message.warning("Tên nhãn hiệu thêm mới đã tồn tại");
+                        return;
+                    }
+                })
+              }
+              if (!addNewAvatar) {
+                message.warning("Mời đăng tải ảnh thương hiệu")
+                return
+              }
+              if (!addNewChoicePic) {
+                message.warning("Mời đăng tải hình đại diện")
+                return
+              }
+                try {
+                    let brandFormData = new FormData;
+                            brandFormData.append("data", JSON.stringify(values))
+                            brandFormData.append("avatar", addNewAvatar as any)
+                            brandFormData.append("avatar", addNewChoicePic as any)
+                            const result = await apis.adminProductsApiModule.addNewBrand(brandFormData)
+                            if (result.status == 200) {
+                                message.success(result.data.message)
+                                handleGetBrands()
+                                return true
+                            } else {
+                                message.error("Server bận!")
+                            }
+                } catch (error) {
+                    message.error("Server bận!")
+                }
+            }}
+          >
+            <ProForm.Group>
+                <ProFormText
+                  width="md"
+                  name="brandName"
+                  label="Tên nhãn hiệu"
+                  tooltip="Tối đa 16 ký tự"
+                  placeholder="Tên nhãn hiệu"
+                  required
+                />
+            </ProForm.Group>
+            <ProForm.Group style={{margin:"10px 0px"}}>
+                <label style={{width:'200px',display:"inline-block"}} htmlFor="">Ảnh thương hiệu</label>
+              <Upload
+                action="https://run.mocky.io/v3/435e224c-44fb-4773-9faf-380c5e6a2188"
+                listType="picture"
+                defaultFileList={[]}
+                onChange={handleAddAvatar}
+                onRemove={handleRemoveAvatar}
+                maxCount={1}
+              >
+                <Button >Upload</Button>
+              </Upload>
+            </ProForm.Group>
+            <ProForm.Group style={{margin:"10px 0px"}}>
+            <label style={{width:'200px',display:"inline-block"}} htmlFor="">Ảnh đại diện</label>
+            <Upload
+                action="https://run.mocky.io/v3/435e224c-44fb-4773-9faf-380c5e6a2188"
+                listType="picture"
+                defaultFileList={[]}
+                onChange={handleAddChoicePic}
+                onRemove={handleRemoveChoicePic}
+                maxCount={1}
+              >
+                <Button >Upload</Button>
+              </Upload>
+            </ProForm.Group>
+          </ModalForm>
                 </Flex>
             </Flex>
             <div className='table-container'>

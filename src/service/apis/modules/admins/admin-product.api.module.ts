@@ -43,8 +43,8 @@ export const adminProductsApiModule = {
     getProductBrand:async function(){
       return await axios.get(import.meta.env.VITE_PROTOCOL+import.meta.env.VITE_HOST+`/api/v1/admin-products/brands`)
     },
-    addNewBrand:async function (newBrandName:string){
-      return await axios.post(import.meta.env.VITE_PROTOCOL+import.meta.env.VITE_HOST+`/api/v1/admin-products/brand-new`,{newBrandName})
+    addNewBrand:async function (brandFormData:any){
+      return await axios.post(import.meta.env.VITE_PROTOCOL+import.meta.env.VITE_HOST+`/api/v1/admin-products/brand-new`,brandFormData,{headers:{'Content-Type': 'multipart/form-data'}})
     },
     deleteMaterial:async function (materialId:number){
       return await axios.delete(import.meta.env.VITE_PROTOCOL+import.meta.env.VITE_HOST+`/api/v1/admin-products/material?id=${materialId}`)
