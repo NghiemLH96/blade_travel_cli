@@ -18,6 +18,10 @@ export default function Products() {
     const [madeByOption, setMadeByOption] = useState<Array<{ value: number | null, label: string }>>([])
 
 
+    useEffect(()=>{
+        console.log("renderProductList",renderProductList);
+        
+    },[renderProductList])
     const [resultCount, setResultCount] = useState<number>(0)
     const pageSize = 10
 
@@ -85,7 +89,8 @@ export default function Products() {
             }
 
             const result = await apis.productCliApi.getProductsByOption(searchOption)
-
+            console.log(result);
+            
             setResultCount(result.data.count)
             setRenderProductList(result.data.data)
         } catch (error) {
