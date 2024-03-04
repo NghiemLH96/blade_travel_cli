@@ -20,7 +20,11 @@ export default function Carousel1() {
     useEffect(()=>{
         getCatList()
     },[])
+    
     const [ catList , setCatList ] = useState([])
+    useEffect(()=>{
+        console.log("catList",catList);
+    },[catList])
     const getCatList = async() => {
         try {
             const result = await apis.adminProductsApiModule.getProductCategories()

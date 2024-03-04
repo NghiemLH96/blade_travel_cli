@@ -9,6 +9,10 @@ export default function BestSeller() {
         getProducts()
     }, [])
     const [bestSellerList, setBestSellerList] = useState([])
+    useEffect(()=>{
+        console.log("catList",bestSellerList);
+    },[bestSellerList])
+    
     const getProducts = async () => {
         try {
             const result = await apis.productCliApi.getBestSeller()
