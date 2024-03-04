@@ -4,11 +4,32 @@ import { Drawer, Modal } from 'antd';
 import './scss/header.scss'
 import { useAppDispatch, useAppSelector } from '@/store/store';
 import { userAction } from '@/store/slices/loginDetail.slice';
+import { apis } from '@/service/apis';
 
 
 
 export default function Header() {
     const dispatch = useAppDispatch()
+    useEffect(()=>{
+      if (localStorage.getItem("token")) {
+        let token = localStorage.getItem("token")
+        verifyToken(token)
+      }
+    },[])
+    const verifyToken = async(token:string|null) => {
+      try {
+        if (token == null) {
+          return
+        }else{
+          const result = await apis.userApiModule.checkLogin(token)
+          if (result.status == 200) {
+            dispatch(userAction.createLogin(result.data.data))
+          }
+        }
+      } catch (error) {
+        
+      }
+    }
 
     //ANTD warning notification
     const { confirm } = Modal;
