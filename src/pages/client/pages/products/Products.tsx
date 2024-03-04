@@ -89,7 +89,6 @@ export default function Products() {
             }
 
             const result = await apis.productCliApi.getProductsByOption(searchOption)
-            console.log(result);
             
             setResultCount(result.data.count)
             setRenderProductList(result.data.data)
