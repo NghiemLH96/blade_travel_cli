@@ -1,0 +1,44 @@
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+.page-container{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    .page-title{
+        display: flex;
+        align-items: center;
+        text-align: center;
+        width: 90%;
+        height: 100px;
+        font-family: $bannerFont;
+        h2{
+            font-size: 50px;
+        }
+    }
+    .searchBar-container{
+        width: 90%;
+        height: 50px;
+    }
+    .productsDisplay-container{
+        padding: 10px 0px;
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+        column-gap: 20px;
+        row-gap: 20px;
+        .card-description {
+            display: flex;
+            flex-direction: column;
+            font-size: 12px;
+
+            p {
+                line-height: 0px;
+                margin: 0;
+            }
+        }
+        
+    }
+}

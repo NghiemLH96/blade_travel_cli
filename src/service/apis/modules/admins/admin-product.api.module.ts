@@ -55,8 +55,8 @@ export const adminProductsApiModule = {
     changeCategoryStatus:async function (item:{id:number,status:boolean}){
       return await axios.patch(import.meta.env.VITE_PROTOCOL+import.meta.env.VITE_HOST+`/api/v1/admin-products/category-status`,item)
     },
-    addNewCategory:async function (newCategoryName:string){
-      return await axios.post(import.meta.env.VITE_PROTOCOL+import.meta.env.VITE_HOST+`/api/v1/admin-products/category-new`,{newCategoryName})
+    addNewCategory:async function (newCategoryName:any){
+      return await axios.post(import.meta.env.VITE_PROTOCOL+import.meta.env.VITE_HOST+`/api/v1/admin-products/category-new`,newCategoryName)
     },
     deleteCategory:async function (categoryId:number){
       return await axios.delete(import.meta.env.VITE_PROTOCOL+import.meta.env.VITE_HOST+`/api/v1/admin-products/category?id=${categoryId}`)

@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { useEffect, useRef, useState } from 'react'
-import { Modal } from 'antd';
+import { Drawer, Modal } from 'antd';
 import './scss/header.scss'
 import { useAppDispatch, useAppSelector } from '@/store/store';
 import { userAction } from '@/store/slices/loginDetail.slice';
@@ -12,22 +12,23 @@ export default function Header() {
 
     //ANTD warning notification
     const { confirm } = Modal;
-    const showConfirm = (title:string) => {
+    const showConfirm = (title: string) => {
         confirm({
-          title,
-          onOk() {
-            localStorage.removeItem('token')
-            dispatch(userAction.removeLogin())
-          },
-          onCancel() {
-            
-          },
+            title,
+            onOk() {
+                localStorage.removeItem('token')
+                dispatch(userAction.removeLogin())
+            },
+            onCancel() {
+
+            },
         });
-      };
+    };
 
     const loginUser = useAppSelector(state => state.user.data);
-    
-    
+
+
+
 
     const navigate = useNavigate()
     const [languageTrigger, setLanguageTrigger] = useState(false)
@@ -46,6 +47,18 @@ export default function Header() {
         };
         document.addEventListener("mousedown", handleMenuTrigger)
     })
+
+
+    const [open, setOpen] = useState(false);
+
+    const showDrawer = () => {
+        setOpen(true);
+    };
+
+    const onClose = () => {
+        setOpen(false);
+    };
+
     return (
         <header>
             <img className='header_background' src="https://firebasestorage.googleapis.com/v0/b/blade-firebase.appspot.com/o/assets%2Fphoto-1528629297340-d1d466945dc5.avif?alt=media&token=84918ca7-6e27-4ee0-925e-2e2414274b2e" alt="" />
@@ -54,11 +67,11 @@ export default function Header() {
                     <img className='logo' src="https://firebasestorage.googleapis.com/v0/b/blade-firebase.appspot.com/o/assets%2Flogo_b.png?alt=media&token=90278c26-bea6-4640-8499-5dfde55a41d8" alt="" />
                 </section>
                 <section className='header_top_middle'>
-                    <div className='nav'>
+                    <div className='nav' onClick={() => { navigate("/") }}>
                         <span>Trang chủ</span>
                         <div className='navLine'></div>
                     </div>
-                    <div className='nav'>
+                    <div className='nav' onClick={() => { navigate("/products") }}>
                         <span>Sản phẩm</span>
                         <div className='navLine'></div>
                     </div>
@@ -85,10 +98,16 @@ export default function Header() {
                             <span className="material-symbols-outlined menuIcon">
                                 menu
                             </span>
-                            <img className='userAvatar' src={(loginUser as any).avatar ? `http://127.0.0.1:3000/imgs/avatars/${(loginUser as any).avatar}` : "https://cdn.vectorstock.com/i/preview-1x/66/14/default-avatar-photo-placeholder-profile-picture-vector-21806614.jpg"} alt="" />
+                            <img className='userAvatar' src={(loginUser as any).avatar ? (loginUser as any).avatar : "https://cdn.vectorstock.com/i/preview-1x/66/14/default-avatar-photo-placeholder-profile-picture-vector-21806614.jpg"} alt="" />
                         </div>
                         <div className={accTrigger ? 'accountMenu_dropDown active' : 'accountMenu_dropDown'}>
                             {!(loginUser as any).id && <span onClick={() => { navigate("/auth") }}>Đăng nhập</span>}
+                            <span onClick={showDrawer}>Giỏ hàng</span>
+                            <Drawer title="Giỏ hàng" onClose={onClose} open={open}>
+                                <p>Some contents...</p>
+                                <p>Some contents...</p>
+                                <p>Some contents...</p>
+                            </Drawer>
                             <span onClick={() => { navigate("/booking") }}>Đơn Hàng</span>
                             <span onClick={() => { navigate("/auth/business-login") }}>Truy cập trang quản lý</span>
                             <span onClick={() => {

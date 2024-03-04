@@ -14,5 +14,14 @@ export const userApiModule = {
     },
     checkLogin:async function (token: string){
         return await axios.get(import.meta.env.VITE_PROTOCOL+import.meta.env.VITE_HOST+`/api/v1/users/check-login/${token}`)
+    },
+    loginWithGoogle:async function (newUserDetail:{
+        email:string | null,
+        password:string,
+        phone:string,
+        avatar:string,
+        ip:string
+      }){
+        return await axios.post(import.meta.env.VITE_PROTOCOL+import.meta.env.VITE_HOST+"/api/v1/users/login-google",newUserDetail)
     }
 }

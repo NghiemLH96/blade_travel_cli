@@ -14,12 +14,14 @@ import MaterialsMng from '@/pages/admin/fn-page/material/MaterialsMng'
 import CategoriesMng from '@/pages/admin/fn-page/categories/CategoriesMng'
 import BrandsMng from '@/pages/admin/fn-page/brand/BrandsMng'
 import MadeByMng from '@/pages/admin/fn-page/madeBy/MadeByMng'
+import Products from '@/pages/client/pages/products/Products'
 
 export default function MainRoutes() {
   return (
         <Routes>
             <Route path='/' element={utils.lazyFn(()=>import('@pages/client/MainPage'))()}>
                 <Route path='' element={<Home/>}></Route>
+                <Route path='products' element={<Products/>}></Route>
             </Route>
             <Route path='/auth' element={<AuthenPage/>}></Route>
             <Route path='/admin-auth' element={<AdminAuth/>}></Route>

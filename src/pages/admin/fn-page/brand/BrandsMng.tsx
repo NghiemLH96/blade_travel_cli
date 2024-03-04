@@ -137,7 +137,7 @@ export default function BrandsMng() {
         status: boolean;
         createAt: string;
         updateAt: string;
-        brandLogo:string;
+        brandLogo: string;
     }
 
     const columns: TableProps<DataType>['columns'] = [
@@ -156,7 +156,7 @@ export default function BrandsMng() {
             dataIndex: 'brandLogo',
             key: 'brandLogo',
             render: (brandLogo) =>
-                <img style={{width:"50px"}} src={brandLogo} alt="" />
+                <img style={{ width: "50px" }} src={brandLogo} alt="" />
         },
         {
             title: 'Trạng thái',
@@ -199,38 +199,38 @@ export default function BrandsMng() {
 
     const waitTime = (time: number = 100) => {
         return new Promise((resolve) => {
-          setTimeout(() => {
-            resolve(true);
-          }, time);
+            setTimeout(() => {
+                resolve(true);
+            }, time);
         });
-      };
-      
-    const [addNewBrandForm] = Form.useForm<{
-        brandName:string
-      }>();
-      
-      const [addNewAvatar, setAddNewAvatar] = useState<UploadFile | null>()
-      const [addNewChoicePic, setAddNewwChoicePic] = useState<UploadFile | null>()
-    
-      const handleAddAvatar: UploadProps['onChange'] = (info) => {
-        if (info.file.status === 'done') {
-          setAddNewAvatar(info.fileList[0].originFileObj)
-        }
-      };
-    
-      const handleRemoveAvatar: UploadProps['onRemove'] = () => {
-            setAddNewAvatar(null);
-      };
+    };
 
-      const handleAddChoicePic: UploadProps['onChange'] = (info) => {
+    const [addNewBrandForm] = Form.useForm<{
+        brandName: string
+    }>();
+
+    const [addNewAvatar, setAddNewAvatar] = useState<UploadFile | null>()
+    const [addNewChoicePic, setAddNewwChoicePic] = useState<UploadFile | null>()
+
+    const handleAddAvatar: UploadProps['onChange'] = (info) => {
+        if (info.file.status === 'done') {
+            setAddNewAvatar(info.fileList[0].originFileObj)
+        }
+    };
+
+    const handleRemoveAvatar: UploadProps['onRemove'] = () => {
+        setAddNewAvatar(null);
+    };
+
+    const handleAddChoicePic: UploadProps['onChange'] = (info) => {
         if (info.file.status === 'done') {
             setAddNewwChoicePic(info.fileList[0].originFileObj)
         }
-      };
-    
-      const handleRemoveChoicePic: UploadProps['onRemove'] = () => {
+    };
+
+    const handleRemoveChoicePic: UploadProps['onRemove'] = () => {
         setAddNewwChoicePic(null);
-      };
+    };
     return (
         <div className='content_container'>
             <h2 className='content_title'>Danh sách nhãn hiệu</h2>
@@ -254,99 +254,99 @@ export default function BrandsMng() {
                         Làm mới
                     </Button>
                     <ModalForm<{
-            brandName:string
-          }>
-            title="Thêm mới"
-            trigger={
-              <Button size="small" type="primary">
-                <PlusOutlined />
-                Thêm mới
-              </Button>
-            }
-            form={addNewBrandForm}
-            autoFocusFirstInput
-            variant="filled"
-            modalProps={{
-              destroyOnClose: true,
-              onCancel: () => console.log('run'),
-            }}
-            submitTimeout={2000}
-            onFinish={async (values) => {
-              await waitTime(2000);
-              if (!values.brandName) {
-                message.warning("Tên nhãn hiệu không được để trống")
-                return
-              }else{
-                brandList.map(item => {
-                    if ((item as any).brandName == values.brandName) {
-                        message.warning("Tên nhãn hiệu thêm mới đã tồn tại");
-                        return;
-                    }
-                })
-              }
-              if (!addNewAvatar) {
-                message.warning("Mời đăng tải ảnh thương hiệu")
-                return
-              }
-              if (!addNewChoicePic) {
-                message.warning("Mời đăng tải hình đại diện")
-                return
-              }
-                try {
-                    let brandFormData = new FormData;
-                            brandFormData.append("data", JSON.stringify(values))
-                            brandFormData.append("avatar", addNewAvatar as any)
-                            brandFormData.append("avatar", addNewChoicePic as any)
-                            const result = await apis.adminProductsApiModule.addNewBrand(brandFormData)
-                            if (result.status == 200) {
-                                message.success(result.data.message)
-                                handleGetBrands()
-                                return true
+                        brandName: string
+                    }>
+                        title="Thêm mới"
+                        trigger={
+                            <Button size="small" type="primary">
+                                <PlusOutlined />
+                                Thêm mới
+                            </Button>
+                        }
+                        form={addNewBrandForm}
+                        autoFocusFirstInput
+                        variant="filled"
+                        modalProps={{
+                            destroyOnClose: true,
+                            onCancel: () => console.log('run'),
+                        }}
+                        submitTimeout={2000}
+                        onFinish={async (values) => {
+                            await waitTime(2000);
+                            if (!values.brandName) {
+                                message.warning("Tên nhãn hiệu không được để trống")
+                                return
                             } else {
+                                brandList.map(item => {
+                                    if ((item as any).brandName == values.brandName) {
+                                        message.warning("Tên nhãn hiệu thêm mới đã tồn tại");
+                                        return;
+                                    }
+                                })
+                            }
+                            if (!addNewAvatar) {
+                                message.warning("Mời đăng tải ảnh thương hiệu")
+                                return
+                            }
+                            if (!addNewChoicePic) {
+                                message.warning("Mời đăng tải hình đại diện")
+                                return
+                            }
+                            try {
+                                let brandFormData = new FormData;
+                                brandFormData.append("data", JSON.stringify(values))
+                                brandFormData.append("avatar", addNewAvatar as any)
+                                brandFormData.append("avatar", addNewChoicePic as any)
+                                const result = await apis.adminProductsApiModule.addNewBrand(brandFormData)
+                                if (result.status == 200) {
+                                    message.success(result.data.message)
+                                    handleGetBrands()
+                                    return true
+                                } else {
+                                    message.error("Server bận!")
+                                }
+                            } catch (error) {
                                 message.error("Server bận!")
                             }
-                } catch (error) {
-                    message.error("Server bận!")
-                }
-            }}
-          >
-            <ProForm.Group>
-                <ProFormText
-                  width="md"
-                  name="brandName"
-                  label="Tên nhãn hiệu"
-                  tooltip="Tối đa 16 ký tự"
-                  placeholder="Tên nhãn hiệu"
-                  required
-                />
-            </ProForm.Group>
-            <ProForm.Group style={{margin:"10px 0px"}}>
-                <label style={{width:'200px',display:"inline-block"}} htmlFor="">Ảnh thương hiệu</label>
-              <Upload
-                action="https://run.mocky.io/v3/435e224c-44fb-4773-9faf-380c5e6a2188"
-                listType="picture"
-                defaultFileList={[]}
-                onChange={handleAddAvatar}
-                onRemove={handleRemoveAvatar}
-                maxCount={1}
-              >
-                <Button >Upload</Button>
-              </Upload>
-            </ProForm.Group>
-            <ProForm.Group style={{margin:"10px 0px"}}>
-            <label style={{width:'200px',display:"inline-block"}} htmlFor="">Ảnh đại diện</label>
-            <Upload
-                action="https://run.mocky.io/v3/435e224c-44fb-4773-9faf-380c5e6a2188"
-                listType="picture"
-                defaultFileList={[]}
-                onChange={handleAddChoicePic}
-                onRemove={handleRemoveChoicePic}
-                maxCount={1}
-              >
-                <Button >Upload</Button>
-              </Upload>
-            </ProForm.Group>
-          </ModalForm>
+                        }}
+                    >
+                        <ProForm.Group>
+                            <ProFormText
+                                width="md"
+                                name="brandName"
+                                label="Tên nhãn hiệu"
+                                tooltip="Tối đa 16 ký tự"
+                                placeholder="Tên nhãn hiệu"
+                                required
+                            />
+                        </ProForm.Group>
+                        <ProForm.Group style={{ margin: "10px 0px" }}>
+                            <label style={{ width: '200px', display: "inline-block" }} htmlFor="">Ảnh thương hiệu</label>
+                            <Upload
+                                action="https://run.mocky.io/v3/435e224c-44fb-4773-9faf-380c5e6a2188"
+                                listType="picture"
+                                defaultFileList={[]}
+                                onChange={handleAddAvatar}
+                                onRemove={handleRemoveAvatar}
+                                maxCount={1}
+                            >
+                                <Button >Upload</Button>
+                            </Upload>
+                        </ProForm.Group>
+                        <ProForm.Group style={{ margin: "10px 0px" }}>
+                            <label style={{ width: '200px', display: "inline-block" }} htmlFor="">Ảnh đại diện</label>
+                            <Upload
+                                action="https://run.mocky.io/v3/435e224c-44fb-4773-9faf-380c5e6a2188"
+                                listType="picture"
+                                defaultFileList={[]}
+                                onChange={handleAddChoicePic}
+                                onRemove={handleRemoveChoicePic}
+                                maxCount={1}
+                            >
+                                <Button >Upload</Button>
+                            </Upload>
+                        </ProForm.Group>
+                    </ModalForm>
                 </Flex>
             </Flex>
             <div className='table-container'>

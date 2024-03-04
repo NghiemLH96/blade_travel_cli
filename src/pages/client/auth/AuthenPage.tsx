@@ -3,12 +3,13 @@ import { useNavigate, useParams } from "react-router-dom"
 import './authPage.scss'
 import { message , Modal } from 'antd';
 import { apis } from "@/service/apis";
-import { useAppDispatch } from "@/store/store"
-import { userAction } from "@/store/slices/loginDetail.slice"
+import utils from "@/utils";
+import { userAction } from "@/store/slices/loginDetail.slice";
+import { useAppDispatch } from "@/store/store";
+import {  GoogleOutlined } from "@ant-design/icons";
 
 export default function AuthenPage() {
-  const dispatch = useAppDispatch()
-
+  const dispatch = useAppDispatch();
   //ANTD warning notification
   const warningNotice = (content:string) => {
     Modal.warning({
@@ -28,12 +29,10 @@ export default function AuthenPage() {
       try {
         let result = await apis.userApiModule.checkLogin(token)
         if (result.status == 200) {
+          dispatch(userAction.createLogin(result.data.data))
           warningNotice("Hiện bạn đang trong trạng thái đang nhập")
-        }else{
-          throw false
         }
       } catch (error) {
-        
         console.log(error);
       }
     }
@@ -220,7 +219,6 @@ export default function AuthenPage() {
       let loginResult = await apis.userApiModule.loginByAccount(loginInfo)
       if (loginResult.status == 200) {
         successMessage(loginResult.data.message)
-        dispatch(userAction.createLogin(loginResult.data.info))
         localStorage.setItem("token",loginResult.data.token)
         setTimeout(()=>{navigate("/")},500)
       }else{
@@ -257,10 +255,33 @@ export default function AuthenPage() {
               </div>
               <button type="submit">Đăng Nhập</button>
             </form>
-            <button className="login_socialMedia">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-google social_icon" viewBox="0 0 16 16">
-                <path d="M15.545 6.558a9.4 9.4 0 0 1 .139 1.626c0 2.434-.87 4.492-2.384 5.885h.002C11.978 15.292 10.158 16 8 16A8 8 0 1 1 8 0a7.7 7.7 0 0 1 5.352 2.082l-2.284 2.284A4.35 4.35 0 0 0 8 3.166c-2.087 0-3.86 1.408-4.492 3.304a4.8 4.8 0 0 0 0 3.063h.003c.635 1.893 2.405 3.301 4.492 3.301 1.078 0 2.004-.276 2.722-.764h-.003a3.7 3.7 0 0 0 1.599-2.431H8v-3.08z" />
-              </svg>
+            <button className="login_socialMedia" onClick={async()=>{
+               try {
+                  let result = await utils.firebase.handleGoogleLogin()
+                  console.log("result",result.user);
+                    const loginDetail = {
+                      email:result.user.email,
+                      password:result.user.uid,
+                      phone:result.user.phoneNumber || "0000000000",
+                      avatar:result.user.photoURL || "https://cdn.vectorstock.com/i/preview-1x/66/14/default-avatar-photo-placeholder-profile-picture-vector-21806614.jpg",
+                      ip:"127.0.0.1"
+                    }
+                  const createResult = await apis.userApiModule.loginWithGoogle(loginDetail)
+                  if (createResult.status == 200) {
+                    localStorage.setItem("token",createResult.data.token)
+                    message.success(createResult.data.message)
+                    setTimeout(()=>{
+                      navigate('/')
+                    },1000)
+                  }
+                  
+                  
+               } catch (err) {
+                  console.log("loi dang nhap google",err);
+                  
+               }
+            }}>
+              <GoogleOutlined />
               <span>Đăng nhập bằng tài khoản Google</span>
             </button>
           </div>
@@ -305,7 +326,7 @@ export default function AuthenPage() {
                 <div className="btnField">
                   <button onClick={() => { document.querySelector(".authSite_right")?.classList.remove("active_register") }}>Quay lại đăng nhập</button>
                   <button type="submit" id="register_nextBtn">Tiếp theo <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-arrow-right-circle" viewBox="0 0 16 16">
-                    <path fill-rule="evenodd" d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8m15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0M4.5 7.5a.5.5 0 0 0 0 1h5.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5z" />
+                    <path fillRule="evenodd" d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8m15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0M4.5 7.5a.5.5 0 0 0 0 1h5.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5z" />
                   </svg></button>
                 </div>
               </form>
@@ -321,7 +342,7 @@ export default function AuthenPage() {
               <div className="btnField">
                 <button onClick={() => { document.querySelector(".authSite_right")?.classList.remove("active_avatar") }}>Quay lại</button>
                 <button onClick={() => { handleRegister() }}>{avatarFile ? "Đăng ký" : "Bỏ qua"} <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-arrow-right-circle" viewBox="0 0 16 16">
-                  <path fill-rule="evenodd" d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8m15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0M4.5 7.5a.5.5 0 0 0 0 1h5.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5z" />
+                  <path fillRule="evenodd" d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8m15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0M4.5 7.5a.5.5 0 0 0 0 1h5.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5z" />
                 </svg></button>
               </div>
             </div>

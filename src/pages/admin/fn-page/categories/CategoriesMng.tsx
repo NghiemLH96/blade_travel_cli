@@ -1,7 +1,9 @@
-import { Button, Flex, Input, Modal, Select, Space, Table, TableProps, message } from 'antd'
+import { Button, Flex, Form, Input, Modal, Select, Space, Table, TableProps, Upload, UploadFile, UploadProps, message } from 'antd'
 import '../../scss/fnPage.scss'
 import { useEffect, useState } from 'react';
 import { apis } from '@/service/apis';
+import { ModalForm, ProForm, ProFormText } from '@ant-design/pro-components';
+import { PlusOutlined } from '@ant-design/icons';
 
 export default function CategoriesMng() {
 
@@ -172,7 +174,8 @@ export default function CategoriesMng() {
         categoryName: string;
         status: boolean;
         createAt: string;
-        updateAt: string
+        updateAt: string;
+        avatar:string   
     }
 
     const columns: TableProps<DataType>['columns'] = [
@@ -185,6 +188,13 @@ export default function CategoriesMng() {
             title: 'Thể loại',
             dataIndex: 'categoryName',
             key: 'categoryName'
+        },
+        {
+            title: 'Ảnh đại diện',
+            dataIndex: 'avatar',
+            key: 'avatar',
+            render: (avatar) =>
+                <img style={{width:"100px"}} src={avatar} alt="" />
         },
         {
             title: 'Trạng thái',
@@ -222,6 +232,33 @@ export default function CategoriesMng() {
         }
     ]
     const data: DataType[] = renderCategories
+
+    
+    const [addNewAvatar, setAddNewAvatar] = useState<UploadFile | null>()
+    
+    const waitTime = (time: number = 100) => {
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                resolve(true);
+            }, time);
+        });
+    };
+
+    const handleAddAvatar: UploadProps['onChange'] = (info) => {
+        if (info.file.status === 'done') {
+            setAddNewAvatar(info.fileList[0].originFileObj)
+        }
+    };
+
+    const handleRemoveAvatar: UploadProps['onRemove'] = () => {
+        setAddNewAvatar(null);
+    };
+
+    const [addNewCatForm] = Form.useForm<{
+        categoryName: string
+    }>();
+
+    
     return (
         <div className='content_container'>
             <h2 className='content_title'>Danh sách tài khoản quản trị viên</h2>
@@ -244,6 +281,86 @@ export default function CategoriesMng() {
                     <Button type="default" size={"small"} onClick={() => { clearSearchOption() }}>
                         Làm mới
                     </Button>
+                    <ModalForm<{
+                        categoryName: string
+                    }>
+                        title="Thêm mới"
+                        trigger={
+                            <Button size="small" type="primary">
+                                <PlusOutlined />
+                                Thêm mới
+                            </Button>
+                        }
+                        form={addNewCatForm}
+                        autoFocusFirstInput
+                        variant="filled"
+                        modalProps={{
+                            destroyOnClose: true,
+                            onCancel: () => console.log('run'),
+                        }}
+                        submitTimeout={2000}
+                        onFinish={async (values) => {
+                            await waitTime(2000);
+                            if (!values.categoryName) {
+                                message.warning("Tên thể loại không được để trống")
+                                return
+                            } else {
+                                categoriesList.map(item => {
+                                    if ((item as any).categoryName == values.categoryName) {
+                                        message.warning("Tên nhãn hiệu thêm mới đã tồn tại");
+                                        return;
+                                    }
+                                })
+                            }
+                            if (!addNewAvatar) {
+                                message.warning("Mời đăng tải ảnh thể loại")
+                                return
+                            }
+                            try {
+                                console.log(addNewAvatar);
+                                
+                                let catFormData = new FormData;
+                                catFormData.append("data", JSON.stringify(values))
+                                catFormData.append("avatar", addNewAvatar as any)
+                                const result = await apis.adminProductsApiModule.addNewCategory(catFormData)
+                                console.log(result);
+                                
+                                if (result.status == 200) {
+                                    message.success(result.data.message)
+                                    handleGetCategories()
+                                    return true
+                                } else {
+                                    message.error("Server bận!")
+                                }
+                            } catch (error) {
+                                message.error("Server bận!")
+                            }
+                        }}
+                    >
+                        <ProForm.Group>
+                            <ProFormText
+                                width="md"
+                                name="categoryName"
+                                label="Tên thể loại"
+                                tooltip="Tối đa 16 ký tự"
+                                placeholder="Tên thể loại"
+                                required
+                            />
+                        </ProForm.Group>
+                        <ProForm.Group style={{ margin: "10px 0px" }}>
+                            <label style={{ width: '200px', display: "inline-block" }} htmlFor="">Ảnh thể loại</label>
+                            <Upload
+                                action="https://run.mocky.io/v3/435e224c-44fb-4773-9faf-380c5e6a2188"
+                                listType="picture"
+                                defaultFileList={[]}
+                                onChange={handleAddAvatar}
+                                onRemove={handleRemoveAvatar}
+                                maxCount={1}
+                            >
+                                <Button >Upload</Button>
+                            </Upload>
+                        </ProForm.Group>
+                    </ModalForm>
                     <Input style={{ width: 150 }} size="small" type="text" placeholder='Tên thể loại mới' value={addNewCategory} onChange={(e) => { setAddNewCategory(e.target.value) }} />
                     <Button type="primary" size={"small"} onClick={() => { handleAddNew() }}>
                         Thêm mới
