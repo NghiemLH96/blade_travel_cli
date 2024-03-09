@@ -1,7 +1,6 @@
 import { apis } from "@/service/apis"
 import { Button, Flex, Form, Input, Modal, PaginationProps, Select, Space, Table, Upload, message } from "antd"
 import { useEffect, useState } from "react"
-import { PlusOutlined } from '@ant-design/icons';
 import type { TableProps, UploadFile, UploadProps } from 'antd';
 import '../../scss/fnPage.scss'
 import { ModalForm, ProForm, ProFormMoney, ProFormSelect, ProFormText } from "@ant-design/pro-components";
@@ -19,28 +18,28 @@ export default function AdminProductMng() {
   const [brandsOption, setBrandsOption] = useState<Array<{ value: number | null, label: string }>>([])
   const [madeByOption, setMadeByOption] = useState<Array<{ value: number | null, label: string }>>([])
 
-useEffect(()=>{
-  let cateOption = categoriesList.map(item => {
-    return { value: item.id, label: item.categoryName }
-  });
-  setCategoriesOption(cateOption);
+  useEffect(() => {
+    let cateOption = categoriesList.map(item => {
+      return { value: item.id, label: item.categoryName }
+    });
+    setCategoriesOption(cateOption);
 
-  let mateOption = materialList.map(item => {
-    return { value: item.id, label: item.material }
-  });
-  setMaterialOption(mateOption);
+    let mateOption = materialList.map(item => {
+      return { value: item.id, label: item.material }
+    });
+    setMaterialOption(mateOption);
 
-  let brandOption = brandsList.map(item => {
-    return { value: item.id, label: item.brandName }
-  });
-  setBrandsOption(brandOption)
+    let brandOption = brandsList.map(item => {
+      return { value: item.id, label: item.brandName }
+    });
+    setBrandsOption(brandOption)
 
-  let countryOption =madeByList.map(item => {
-    return { value: item.id, label: item.country }
-  });
-  setMadeByOption(countryOption)
-  
-},[categoriesList,madeByList,materialList,brandsList])
+    let countryOption = madeByList.map(item => {
+      return { value: item.id, label: item.country }
+    });
+    setMadeByOption(countryOption)
+
+  }, [categoriesList, madeByList, materialList, brandsList])
 
   const [resultCount, setResultCount] = useState<number>(0)
   const pageSize = 10
@@ -258,6 +257,14 @@ useEffect(()=>{
   };
 
   const [uploadImgForm] = Form.useForm<{ username: string; passwords: string; department: number }>();
+  const [editForm] = Form.useForm<{
+    productName: string,
+    price: number,
+    material: number | null,
+    categoryId: number | null,
+    brand: number | null,
+    madeBy: number | null
+  }>();
   const [uploadImg, setUploadImg] = useState<UploadFile[]>([])
 
   const handleUploadPics = async (id: number) => {
@@ -320,7 +327,7 @@ useEffect(()=>{
       key: 'avatar',
       render: (avatar) =>
         <img style={{ width: "70px", height: "70px" }} src={avatar} alt="" />
-    },{
+    }, {
       title: 'Trạng thái',
       dataIndex: 'status',
       key: 'status',
@@ -351,7 +358,12 @@ useEffect(()=>{
     {
       title: 'Price',
       dataIndex: 'price',
-      key: 'price'
+      key: 'price',
+      render: (price) =>
+        <span>{price.toLocaleString('vi-VN', {
+          style: 'currency',
+          currency: 'VND',
+        })}</span>
     },
     {
       title: 'createAt',
@@ -384,6 +396,106 @@ useEffect(()=>{
             Xoá
           </Button>
           <ModalForm<{
+            productName: string,
+            price: number,
+            material: number | null,
+            categoryId: number | null,
+            brand: number | null,
+            madeBy: number | null
+          }>
+            title="Chỉnh sửa thông tin sản phẩm"
+            trigger={
+              <Button size="small" type="primary">
+                 Chỉnh sửa
+              </Button>
+            }
+            form={editForm}
+            autoFocusFirstInput
+            variant="filled"
+            modalProps={{
+              destroyOnClose: true,
+              onCancel: () => console.log('run'),
+            }}
+            submitTimeout={2000}
+            onFinish={async (values) => {
+              await waitTime(2000);
+              const productDetail = {id:record.id,...values}
+              try {
+                const result = await apis.adminProductsApiModule.updateDetail(productDetail)
+                if (result.status == 200) {
+                  message.success(result.data.message)
+                  getPageProductList()
+                  return true
+                }else{
+                  message.error("Chỉnh sửa thất bại")
+                }
+              } catch (error) {
+                message.error("Server bận thử lại sau nhé")
+              }
+            }}
+          >
+              <ProForm.Group>
+                <ProFormText
+                  width="md"
+                  name="productName"
+                  label="Tên sản phẩm"
+                  tooltip="Tối đa 20 ký tự"
+                  placeholder="Tên sản phẩm"
+                  initialValue={record.productName}
+                  required
+                />
+                <ProFormMoney
+                  label="Giá"
+                  name="price"
+                  locale='vi-VN'
+                  initialValue={record.price}
+                  required
+                  min={0}
+                  trigger="onBlur"
+                />
+                <ProFormSelect
+                  initialValue={record.material}
+                  width="md"
+                  options={
+                    materialOption
+                  }
+                  required
+                  name="material"
+                  label="Chất liệu"
+                />
+                <ProFormSelect
+                  initialValue={record.madeBy}
+                  width="md"
+                  options={
+                    madeByOption
+                  }
+                  required
+                  name="madeBy"
+                  label="Xuất xứ"
+                />
+                <ProFormSelect
+                  initialValue={record.brand}
+                  width="md"
+                  options={
+                    brandsOption
+                  }
+                  required
+                  name="brand"
+                  label="Nhãn hiệu"
+                />
+                <ProFormSelect
+                  initialValue={record.categoryId}
+                  width="md"
+                  options={
+                    categoriesOption
+                  }
+                  required
+                  name="categoryId"
+                  label="Thể loại"
+                />
+              </ProForm.Group>
+          </ModalForm>
+          <ModalForm<{
             username: string;
             passwords: string;
             department: number
@@ -391,7 +503,6 @@ useEffect(()=>{
             title="Thêm hình sản phẩm"
             trigger={
               <Button size="small" type="primary">
-                <PlusOutlined />
                 Thêm ảnh
               </Button>
             }
@@ -434,7 +545,7 @@ useEffect(()=>{
 
   const [addNewProductForm] = Form.useForm<{
     productName: string,
-    price:number,
+    price: number,
     material: number | null,
     categoryId: number | null,
     brand: number | null,
@@ -463,7 +574,7 @@ useEffect(()=>{
           <Input style={{ width: 120 }} value={searchName} size="small" type="text" placeholder="Tên sản phẩm" onChange={(e) => { setSearchName(e.target.value) }} />
           <Select
             value={searchStatus}
-            style={{ width: 140, height: 25}}
+            style={{ width: 140, height: 25 }}
             onChange={handleStatusChange}
             size="small"
             options={[
@@ -477,28 +588,28 @@ useEffect(()=>{
             style={{ width: 140, height: 25 }}
             onChange={handleMaterialSelector}
             size="small"
-            options={[{value:null,label:"Chọn chất liệu"},...materialOption]}
+            options={[{ value: null, label: "Chọn chất liệu" }, ...materialOption]}
           />
           <Select
             value={searchMadeBy}
             style={{ width: 140, height: 25 }}
             onChange={handleMadeBySelector}
             size="small"
-            options={[{value:null,label:"Chọn xuất xứ"},...madeByOption]}
+            options={[{ value: null, label: "Chọn xuất xứ" }, ...madeByOption]}
           />
           <Select
             value={searchBrand}
             style={{ width: 140, height: 25 }}
             onChange={handleBrandChange}
             size="small"
-            options={[{value:null,label:"Chọn nhãn hiệu"},...brandsOption]}
+            options={[{ value: null, label: "Chọn nhãn hiệu" }, ...brandsOption]}
           />
           <Select
             value={searchCategory}
             style={{ width: 140, height: 25 }}
             onChange={handleCategoryChange}
             size="small"
-            options={[{value:null,label:"Chọn thể loại"},...categoriesOption]}
+            options={[{ value: null, label: "Chọn thể loại" }, ...categoriesOption]}
           />
           <Button danger size={"small"} onClick={() => { getPageProductList() }}>
             Tìm kiếm
@@ -508,7 +619,7 @@ useEffect(()=>{
           </Button>
           <ModalForm<{
             productName: string,
-            price:number,
+            price: number,
             material: number | null,
             categoryId: number | null,
             brand: number | null,
@@ -517,7 +628,6 @@ useEffect(()=>{
             title="Thêm mới"
             trigger={
               <Button size="small" type="primary">
-                <PlusOutlined />
                 Thêm mới
               </Button>
             }
@@ -542,8 +652,8 @@ useEffect(()=>{
                 //kiểm tra tên sản phẩm
                 if (!values.productName) {
                   errorList.push('Tên sản phẩm không được để trống')
-                }else{
-                  if(values.productName.length >20){
+                } else {
+                  if (values.productName.length > 20) {
                     errorList.push('Tên sản phẩm không được quá 20 ký tự')
                   }
                 }
@@ -552,11 +662,11 @@ useEffect(()=>{
                 if (Number(values.price) == 0) {
                   errorList.push('Mời nhập giá của sản phẩm')
                 }
-                
-                if(isNaN(Number(values.price))){
+
+                if (isNaN(Number(values.price))) {
                   errorList.push('Giá sản phẩm không hợp lệ')
                 }
-                
+
                 //kiểm tra trường chất liệu
                 if (!values.material) {
                   errorList.push('Chất liệu không được để trống')
@@ -570,7 +680,7 @@ useEffect(()=>{
                 //kiểm tra trường thể loại
                 if (!values.categoryId) {
                   errorList.push('Thể loại không được để trống')
-                  
+
                 }
 
                 //kiểm tra trường xuất xứ
@@ -578,12 +688,12 @@ useEffect(()=>{
                   errorList.push('Xuất xứ không được để trống')
                 }
 
-                if (errorList.length>0) {
-                  message.error(<section style={{textAlign:'start',fontSize:'12px',color:'red'}}>
-                  <h4 style={{textAlign:'center'}}>Thiếu thông tin</h4>
-                  {errorList.map(text => (
-                    <p>- {text}<br /></p>
-                  ))}
+                if (errorList.length > 0) {
+                  message.error(<section style={{ textAlign: 'start', fontSize: '12px', color: 'red' }}>
+                    <h4 style={{ textAlign: 'center' }}>Thiếu thông tin</h4>
+                    {errorList.map(text => (
+                      <p>- {text}<br /></p>
+                    ))}
                   </section>)
                   return false
                 }
@@ -591,7 +701,7 @@ useEffect(()=>{
                 productFormData.append("data", JSON.stringify(values))
                 productFormData.append("avatar", addNewAvatar?.originFileObj as any)
                 console.log(addNewAvatar);
-                
+
                 try {
                   const result = await apis.adminProductsApiModule.createNew(productFormData)
                   if (result.status == 200) {
@@ -599,7 +709,7 @@ useEffect(()=>{
                     getPageProductList()
                     return true
                   }
-                  if(result.status == 214){
+                  if (result.status == 214) {
                     error(result.data.message)
                     getPageProductList()
                     return false
@@ -607,7 +717,7 @@ useEffect(()=>{
                 } catch (err) {
                   error("Lỗi, xin hãy thử lại sau")
                 }
-                
+
               } catch (error) {
 
               }

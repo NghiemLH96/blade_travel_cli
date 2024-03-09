@@ -4,11 +4,8 @@ import bckGrdImg from '@pics/adminAuthBckg.jpeg'
 import { message } from 'antd';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAppDispatch } from '@/store/store';
-import { adminAction } from '@/store/slices/adminLoginDetail.slice';
 
 export default function AdminAuth() {
-    const dispatch = useAppDispatch()
     useEffect(() => {
         checkLogin()
     }, [])
@@ -60,7 +57,6 @@ export default function AdminAuth() {
         if (result.status == 200) {
             successMessage(result.data.message)
             localStorage.setItem('adtkn', result.data.token)
-            dispatch(adminAction.createLogin(result.data.data))
             setTimeout(() => {
                 navigate('/admin')
             }, 1000);

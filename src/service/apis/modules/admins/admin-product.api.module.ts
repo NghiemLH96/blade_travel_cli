@@ -1,4 +1,13 @@
 import axios from "axios"
+interface updateDetail{
+    id:number
+    productName:string
+    material:number|null
+    madeBy:number|null
+    categoryId:number|null
+    price:number
+    brand:number|null
+}
 
 export const adminProductsApiModule = {
     productFilter:async function(data:{
@@ -18,6 +27,9 @@ export const adminProductsApiModule = {
     },
     createNew:async function(newProductDetail:any){
       return await axios.post(import.meta.env.VITE_PROTOCOL+import.meta.env.VITE_HOST+`/api/v1/admin-products/create-new`,newProductDetail,{headers:{'Content-Type': 'multipart/form-data'}})
+    },
+    updateDetail:async function(productDetail:updateDetail){
+      return await axios.patch(import.meta.env.VITE_PROTOCOL+import.meta.env.VITE_HOST+`/api/v1/admin-products/update-detail`,productDetail)
     },
     uploadImgs:async function(imgsList:any){
       return await axios.post(import.meta.env.VITE_PROTOCOL+import.meta.env.VITE_HOST+`/api/v1/admin-products/upload`,imgsList,{headers:{'Content-Type': 'multipart/form-data'}})

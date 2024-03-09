@@ -15,5 +15,5 @@ export const adminLoginDetailSlice = createSlice({
     }
 })
 
-export default adminLoginDetailSlice.reducer;
+export const adminReducer = adminLoginDetailSlice.reducer;
 export const adminAction = adminLoginDetailSlice.actions;

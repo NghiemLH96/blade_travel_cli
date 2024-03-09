@@ -206,7 +206,7 @@ export default function Products() {
             </div>
             <div className='productsDisplay-container'>
                 {renderProductList?.map(item => (
-                    <div onClick={() => { navigate(`/product?id=${(item as any).id}`) }}>
+                    <div key={Math.random()*Date.now()} onClick={() => { navigate(`/product?id=${(item as any).id}`) }}>
                         <Card
                             hoverable
                             style={{ width: 240 }}

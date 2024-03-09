@@ -1,42 +1,13 @@
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { useNavigate, useParams } from "react-router-dom"
 import './authPage.scss'
-import { message , Modal } from 'antd';
+import { message } from 'antd';
 import { apis } from "@/service/apis";
 import utils from "@/utils";
-import { userAction } from "@/store/slices/loginDetail.slice";
-import { useAppDispatch } from "@/store/store";
 import {  GoogleOutlined } from "@ant-design/icons";
 
 export default function AuthenPage() {
-  const dispatch = useAppDispatch();
-  //ANTD warning notification
-  const warningNotice = (content:string) => {
-    Modal.warning({
-      content: content,
-      onOk:()=>{
-        navigate("/")
-      }
-    });
-  };
-
-  useEffect(()=>{
-    checkLogin()
-  },[])
-  const checkLogin = async ()=>{
-    let token = localStorage.getItem("token")
-    if (token) {
-      try {
-        let result = await apis.userApiModule.checkLogin(token)
-        if (result.status == 200) {
-          dispatch(userAction.createLogin(result.data.data))
-          warningNotice("Hiện bạn đang trong trạng thái đang nhập")
-        }
-      } catch (error) {
-        console.log(error);
-      }
-    }
-  }
+  const navigate = useNavigate()
 
   // ANTD components
   // >Error Message
@@ -56,7 +27,7 @@ export default function AuthenPage() {
   };
 
   //
-  const navigate = useNavigate()
+
   const { pageFn } = useParams()
 
 

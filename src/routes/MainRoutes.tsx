@@ -4,7 +4,6 @@ import Home from '@pages/client/pages/home/Home'
 import utils from '@/utils'
 import VerifyEmailPage from '@/pages/client/auth/VerifyEmailPage'
 import AdminAuth from '@/pages/admin/auth-page/auth/AdminAuth'
-import AdminMainPage from '@/pages/admin/AdminMainPage'
 import AdminHome from '@/pages/admin/fn-page/home/AdminHome'
 import AdminProductMng from '@/pages/admin/fn-page/products/AdminProductMng'
 import AdminAccMng from '@/pages/admin/fn-page/accounts/AdminAccMng'
@@ -19,13 +18,13 @@ import Products from '@/pages/client/pages/products/Products'
 export default function MainRoutes() {
   return (
         <Routes>
-            <Route path='/' element={utils.lazyFn(()=>import('@pages/client/MainPage'))()}>
+            <Route path='/' element={utils.lazyFn(()=>import('@pages/client/MainPage'),true)()}>
                 <Route path='' element={<Home/>}></Route>
                 <Route path='products' element={<Products/>}></Route>
             </Route>
             <Route path='/auth' element={<AuthenPage/>}></Route>
             <Route path='/admin-auth' element={<AdminAuth/>}></Route>
-            <Route path='/admin' element={<AdminMainPage/>}>
+            <Route path='/admin' element={utils.lazyFn(()=>import('@pages/admin/AdminMainPage'),localStorage.getItem('adtkn')?true:false)()}>
               <Route path='home' element={<AdminHome/>}/>
               <Route path='products' element={<AdminProductMng/>}/>
               <Route path='materials' element={<MaterialsMng/>}/>

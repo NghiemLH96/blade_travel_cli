@@ -13,7 +13,7 @@ export const userApiModule = {
         return await axios.post(import.meta.env.VITE_PROTOCOL+import.meta.env.VITE_HOST+"/api/v1/users/login",loginInfo)
     },
     checkLogin:async function (token: string){
-        return await axios.get(import.meta.env.VITE_PROTOCOL+import.meta.env.VITE_HOST+`/api/v1/users/check-login/${token}`)
+        return await axios.post(import.meta.env.VITE_PROTOCOL+import.meta.env.VITE_HOST+`/api/v1/users/check-login`,{token})
     },
     loginWithGoogle:async function (newUserDetail:{
         email:string | null,

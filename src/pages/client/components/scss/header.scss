@@ -1,5 +1,85 @@
 
-
+.slide_container{
+    position: relative;
+    .slideImg{
+        width: 100%;
+        height: 600px;
+        object-fit: cover;
+    }
+    .bannerSlogan{
+        position: absolute;
+        z-index: 10;
+        font-family: $mainBannerFont;
+        font-size: 25px;
+        font-weight: 900;
+        top: 35%;
+        left: 100px;
+        pointer-events: none;
+        background-color: #01081061;
+        padding: 25px;
+        border-radius: 20px;
+        color: #FFFFFF;
+        &.banner2{
+            left: auto;
+            right: 100px;
+            p{
+                position: relative;
+                width: 400px;
+                left: 50px;
+                text-align: right;
+            }
+        }
+        &.banner3{
+            top:20%;
+            left: auto;
+            right: 200px;
+            p{
+                width: 400px;
+            }
+        }
+        &.banner4{
+            left:auto;
+            right: 150px;
+        }
+        h1{
+            font-size: 50px;
+        }
+        p{
+            width: 280px;
+        }
+    }
+    .bannerBtn{
+        position: absolute;
+        top :45%;
+        right: 150px;
+        &.banner2{
+            right: auto;
+            left: 150px;
+        }
+        &.banner3{
+            top: 70%;
+            right: 250px;
+            z-index: 100;
+        }
+        &.banner4{
+            top: 55%;
+            right: 200px;
+            z-index: 100;
+        }
+        button{
+            padding: 25px 40px;
+            background-color: #010810;
+            color: #FFFFFF;
+            transition: 0.5s;
+            border: none;
+            border-radius: 15px;
+            box-shadow: #010810 0px 0px 15px;
+            &:hover{
+                box-shadow: #FFFFFF 0px 0px 15px;
+            }
+        }
+    }
+}
 header{
     position: relative;
     display: flex;
@@ -7,13 +87,13 @@ header{
     align-items: center;
     width: 100%;
     height: 600px;
-    .header_background{
-        width: 100%;
-        height: 600px;
-        object-fit: cover;
-        object-position: 50% 30%;
-        overflow: hidden;
+    .header_carousel{
         position: absolute;
+        top:0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: #FF385C;
     }
     .header_top{
         display: flex;
@@ -31,17 +111,18 @@ header{
             flex: 1;
             height: 100%;
             .logo{
-                height: 80%;
+                height: 60%;
             }
         }
         .header_top_middle{
             display: flex;
-            justify-content: space-around;
+            justify-content:start;
             align-items: center;
             flex: 2;
             height: 100%;
-            font-size: $font_l;
+            font-size: $font_m;
             font-family: $bannerFont;
+            column-gap: 20px;
             .nav{
                 overflow: hidden;
                 cursor: pointer;
@@ -114,6 +195,7 @@ header{
                 cursor: pointer;
                 &.active{
                     .accountMenu_dropDown{
+                        width: 350px;
                         transform: translateY(0px);
                         opacity: 1;
                         pointer-events: all;
@@ -141,7 +223,7 @@ header{
                     flex-direction: column;
                     opacity: 0;
                     position: absolute;
-                    width: 180px;
+                    width: 200px;
                     height: auto;
                     margin: 15px;
                     top:12%;
@@ -151,7 +233,7 @@ header{
                     pointer-events: none;
                     overflow: hidden;
                     transform: translateY(-10px);
-                    transition: all 1s;
+                    transition: all 0.5s;
                     &.active{
                         opacity:1;
                         transform: translateY(0px);
@@ -162,10 +244,75 @@ header{
                         cursor: pointer;
                         &:hover{
                             background-color: #FF385C;
+                            color: #FFFFFF;
                         }
+                    }
+                    :first-child{
+                        background-color: #01081048;
+                        cursor:auto;
                     }
                 }
             }
         }
     }
+}
+.cartEmpty{
+    width: 100%;
+    object-fit: cover;
+}
+.cartItem{
+    width: 100%;
+    height: 120px;
+    display: flex;
+    align-items: center;
+    row-gap: 20px;
+    border-bottom: #010810 1px solid;
+    .cartItemPic{
+        width: 60px;
+        height: 60px;
+    }
+    .info{
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        width: 200px;
+        
+        line-height: 5px;
+        height: 80px;
+        .adjustBtn{
+            display: inline-block;
+            width: 15px;
+            height: 15px;
+            line-height: 11px;
+            text-align: center;
+            border-radius: 5px;
+            border: #010810 1px solid;
+            background-color: #010810;
+            color: #FFFFFF;
+            margin: 0px 10px;
+            cursor: pointer;
+            &:active{
+                color: orange;
+            }
+        }
+    }
+    .removeBtn{
+        padding: 5px 15px;
+    }
+}
+.cartFooter{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 10px 0px;
+    label{
+        width: 50%;
+    }
+}
+.paymentBtn{
+    display: flex;
+    width: 100%;
+    justify-content: end;
+    padding: 0px 10px;
 }
