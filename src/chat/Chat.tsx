@@ -29,7 +29,7 @@ export default function Chat() {
                 open ? (
                     <div>
                         <button className="closeBtn" onClick={() => { setOpen(false) }}>X</button>
-                        <ChatBox setOpen={setOpen} />
+                        <ChatBox />
                     </div>
                 ) : (
                     <ModalForm<{
