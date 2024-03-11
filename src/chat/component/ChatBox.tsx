@@ -2,9 +2,7 @@ import { chatService } from "@/socket/chat.socket"
 import { StoreType } from "@/store"
 import { useSelector } from "react-redux"
 
-export default function ChatBox({ setOpen }: {
-    setOpen: any
-}) {
+export default function ChatBox() {
     //time format
     const handleDateType = (timeString: string) => {
         const timestamp = Number(timeString)
