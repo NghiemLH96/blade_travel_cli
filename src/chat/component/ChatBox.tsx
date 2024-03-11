@@ -18,7 +18,8 @@ export default function ChatBox() {
         return formattedDateTime
     }
     const chatStore = useSelector((store: StoreType) => store.chatStore)
-
+    console.log("any");
+    
     return (
         <div id="container">
             <main>
