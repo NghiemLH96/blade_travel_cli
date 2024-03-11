@@ -2,9 +2,11 @@ import { Button, Flex, Input, Modal, Select, Space, Table, TableProps, message }
 import '../../scss/fnPage.scss'
 import { useEffect, useState } from 'react';
 import { apis } from '@/service/apis';
+import { useSelector } from 'react-redux';
+import { StoreType } from '@/store';
 
 export default function MadeByMng() {
-
+    const adminStore = useSelector((store: StoreType) => store.adminStore).data
     useEffect(() => {
         handleGetMadeBy()
     }, [])
@@ -75,6 +77,7 @@ export default function MadeByMng() {
                 onOk: async () => {
                     const result = await apis.adminProductsApiModule.addNewMadeBy(addNewMadeBy)
                     if (result.status == 200) {
+                        await apis.adminApiModule.record({id:adminStore?.id,content:`Thêm xuất xứ mới ${addNewMadeBy}`,operator:adminStore?.username})
                         message.success(result.data.message)
                         handleGetMadeBy()
                         setAddNewMadeBy("")
@@ -91,7 +94,7 @@ export default function MadeByMng() {
     }
 
     //Thay đổi trạng thái
-    const changeMadeByStatus = (data: { id: number, status: boolean }) => {
+    const changeMadeByStatus = (data: { id: number, status: boolean ,country:string}) => {
         try {
             Modal.confirm({
                 title: 'Xác nhận thay đổi trạng thái',
@@ -99,7 +102,8 @@ export default function MadeByMng() {
                 onOk: async () => {
                     const result = await apis.adminProductsApiModule.changeMadeByStatus(data)
                     if (result.status == 200) {
-                        message.success(result.data.message)
+                        await apis.adminApiModule.record({id:adminStore?.id,content:`${data.status ? "Tạm khoá" : "Kích hoạt"} xuất xứ ${data.country}`,operator:adminStore?.username})
+                        message.success(result.data.message)    
                         handleGetMadeBy()
                     }
                     else {
@@ -116,7 +120,7 @@ export default function MadeByMng() {
     }
 
     //Xoá xuất xứ
-    const handleDelete = (data: { id: number }) => {
+    const handleDelete = (data: { id: number , country:string }) => {
         Modal.confirm({
             title: "Xác nhận xoá",
             content: "Bạn chắc là muốn xoá xuất xứ này chứ?",
@@ -124,6 +128,7 @@ export default function MadeByMng() {
                 try {
                     const result = await apis.adminProductsApiModule.deleteMadeBy(data.id)
                     if (result.status == 200) {
+                        await apis.adminApiModule.record({id:adminStore?.id,content:`Đã xoá xuất xứ ${data.country}`,operator:adminStore?.username})
                         message.success(result.data.message)
                     } else {
                         message.warning(result.data.message)
@@ -222,7 +227,7 @@ export default function MadeByMng() {
     const data: DataType[] = rederMadeByList
     return (
         <div className='content_container'>
-            <h2 className='content_title'>Danh sách tài khoản quản trị viên</h2>
+            <h2 className='content_title'>Danh sách xuất xứ</h2>
             <Flex gap="middle" align="start" vertical>
                 <Flex style={boxStyle} justify={'center'} align={'center'}>
                     <Input style={{ width: 150 }} value={searchMadeBy} size="small" type="text" placeholder='Tên tài khoản' onChange={(e) => { setSearchMadeBy(e.target.value) }} />

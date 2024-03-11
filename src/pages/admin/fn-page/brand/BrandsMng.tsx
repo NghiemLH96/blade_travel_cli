@@ -4,12 +4,14 @@ import { PlusOutlined } from '@ant-design/icons';
 import { useEffect, useState } from 'react';
 import { apis } from '@/service/apis';
 import { ModalForm, ProForm, ProFormText } from '@ant-design/pro-components';
+import { StoreType } from '@/store';
+import { useSelector } from 'react-redux';
 
 
 
 
 export default function BrandsMng() {
-
+    const adminStore = useSelector((store: StoreType) => store.adminStore).data
     useEffect(() => {
         handleGetBrands()
     }, [])
@@ -71,7 +73,7 @@ export default function BrandsMng() {
     }
 
     //Thay đổi trạng thái
-    const changeBrandStatus = (data: { id: number, status: boolean }) => {
+    const changeBrandStatus = (data: { id: number, status: boolean ,brandName:string }) => {
         try {
             Modal.confirm({
                 title: 'Xác nhận thay đổi trạng thái',
@@ -79,6 +81,7 @@ export default function BrandsMng() {
                 onOk: async () => {
                     const result = await apis.adminProductsApiModule.changeBrandStatus(data)
                     if (result.status == 200) {
+                        await apis.adminApiModule.record({id:adminStore?.id,content:`${data.status ? "Tạm khoá" : "Kích hoạt"} nhãn hiệu ${data.brandName}`,operator:adminStore?.username})
                         message.success(result.data.message)
                         handleGetBrands()
                     }
@@ -96,7 +99,7 @@ export default function BrandsMng() {
     }
 
     //Xoá nhãn hiệu
-    const handleDelete = (data: { id: number }) => {
+    const handleDelete = (data: { id: number,brandName:string  }) => {
         Modal.confirm({
             title: "Xác nhận xoá",
             content: "Bạn chắc là muốn xoá nhãn hiệu này chứ?",
@@ -104,6 +107,7 @@ export default function BrandsMng() {
                 try {
                     const result = await apis.adminProductsApiModule.deleteBrand(data.id)
                     if (result.status == 200) {
+                        await apis.adminApiModule.record({id:adminStore?.id,content:`Xoá nhãn hiệu ${data.brandName}`,operator:adminStore?.username})
                         message.success(result.data.message)
                     } else {
                         message.warning(result.data.message)
@@ -209,23 +213,20 @@ export default function BrandsMng() {
         brandName: string
     }>();
 
-    const [addNewAvatar, setAddNewAvatar] = useState<UploadFile | null>()
+    const [addNewAvatar, setAddNewAvatar] = useState<any | null>()
     const [addNewChoicePic, setAddNewwChoicePic] = useState<UploadFile | null>()
 
-    const handleAddAvatar: UploadProps['onChange'] = (info) => {
-        if (info.file.status === 'done') {
-            setAddNewAvatar(info.fileList[0].originFileObj)
-        }
-    };
+    const handleAddAvatar: UploadProps['onChange'] = (info) =>{
+        setAddNewAvatar(info.fileList[0].originFileObj);
+    }
+    
 
     const handleRemoveAvatar: UploadProps['onRemove'] = () => {
         setAddNewAvatar(null);
     };
 
-    const handleAddChoicePic: UploadProps['onChange'] = (info) => {
-        if (info.file.status === 'done') {
+    const handleAddChoicePic: UploadProps['onChange'] = (info) => {  
             setAddNewwChoicePic(info.fileList[0].originFileObj)
-        }
     };
 
     const handleRemoveChoicePic: UploadProps['onRemove'] = () => {
@@ -268,7 +269,6 @@ export default function BrandsMng() {
                         variant="filled"
                         modalProps={{
                             destroyOnClose: true,
-                            onCancel: () => console.log('run'),
                         }}
                         submitTimeout={2000}
                         onFinish={async (values) => {
@@ -288,7 +288,7 @@ export default function BrandsMng() {
                                 message.warning("Mời đăng tải ảnh thương hiệu")
                                 return
                             }
-                            if (!addNewChoicePic) {
+                            if (!addNewChoicePic) {    
                                 message.warning("Mời đăng tải hình đại diện")
                                 return
                             }
@@ -299,6 +299,9 @@ export default function BrandsMng() {
                                 brandFormData.append("avatar", addNewChoicePic as any)
                                 const result = await apis.adminProductsApiModule.addNewBrand(brandFormData)
                                 if (result.status == 200) {
+                                    console.log(result);
+                                    
+                                    await apis.adminApiModule.record({id:adminStore?.id,content:`Thêm nhãn hiệu mới ${values.brandName}`,operator:adminStore?.username})
                                     message.success(result.data.message)
                                     handleGetBrands()
                                     return true
@@ -326,6 +329,7 @@ export default function BrandsMng() {
                                 action="https://run.mocky.io/v3/435e224c-44fb-4773-9faf-380c5e6a2188"
                                 listType="picture"
                                 defaultFileList={[]}
+                                beforeUpload={()=>false}
                                 onChange={handleAddAvatar}
                                 onRemove={handleRemoveAvatar}
                                 maxCount={1}
@@ -339,6 +343,7 @@ export default function BrandsMng() {
                                 action="https://run.mocky.io/v3/435e224c-44fb-4773-9faf-380c5e6a2188"
                                 listType="picture"
                                 defaultFileList={[]}
+                                beforeUpload={()=>false}
                                 onChange={handleAddChoicePic}
                                 onRemove={handleRemoveChoicePic}
                                 maxCount={1}

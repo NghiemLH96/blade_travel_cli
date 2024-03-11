@@ -23,5 +23,13 @@ export const userApiModule = {
         ip:string
       }){
         return await axios.post(import.meta.env.VITE_PROTOCOL+import.meta.env.VITE_HOST+"/api/v1/users/login-google",newUserDetail)
+    },
+    uploadAvatar:async function(newAvatar :any){
+        return await axios.post(import.meta.env.VITE_PROTOCOL+import.meta.env.VITE_HOST+"/api/v1/users/upload-avatar",
+        newAvatar,
+        {headers:{'Content-Type': 'multipart/form-data'}})
+    },
+    updatePassword:async function(passwordInfo :{userId:number,old:string,new:string}){
+        return await axios.patch(import.meta.env.VITE_PROTOCOL+import.meta.env.VITE_HOST+"/api/v1/users/update-password",passwordInfo)
     }
 }

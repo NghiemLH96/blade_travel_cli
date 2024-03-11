@@ -1,5 +1,5 @@
 import { apis } from "@/service/apis";
-import { StoreType } from "@/store/store";
+import { StoreType } from "@/store";
 import { Card, message } from "antd";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";

@@ -4,8 +4,11 @@ import { apis } from '@/service/apis';
 import Modal from 'antd/es/modal';
 import { Button, Flex, Form, Input, PaginationProps, Select, Space, Table, TableProps } from 'antd';
 import { ModalForm, ProForm, ProFormText } from '@ant-design/pro-components';
+import { useSelector } from 'react-redux';
+import { StoreType } from '@/store';
 
 export default function AdminAccMng() {
+  const adminStore = useSelector((store: StoreType) => store.adminStore).data
   const [renderUserList, setRenderUserList] = useState<Array<any>>([])
   const [resultCount , setResultCount] = useState<number>(0)
   const pageSize = 10
@@ -38,8 +41,6 @@ export default function AdminAccMng() {
   const getPageUserList = async () => {
       try {
         const result = await apis.usersMngApiModule.search({status:searchStatus,email:searchByEmail,phone:searchByPhone,currentPage:current,pageSize:pageSize})
-        console.log('page',result);
-        
         setResultCount(result.data.total)
         setRenderUserList(result.data.data)
       } catch (error) {
@@ -63,13 +64,14 @@ export default function AdminAccMng() {
   //Khoá & Mở khoá tài khoản
   const { confirm } = Modal;
 
-  const handleLock = (user: { userId: number, userStatus: boolean }) => {
+  const handleLock = (user: { userId: number, userStatus: boolean , userName:string }) => {
     confirm({
       title: 'Thay đổi trạng thái',
       content: `Bạn chắc chắn muốn ${user.userStatus ? 'khoá' : 'mở khoá'} tài khoản này chứ`,
       async onOk() {
         const result = await apis.usersMngApiModule.changeUserStatus(user)
         if (result.status == 200) {
+          await apis.adminApiModule.record({id:adminStore?.id,content:`${user.userStatus ? 'Tạm khoá':'Kích hoạt'} tài khoản người dùng ${user.userName}`,operator:adminStore?.username})
           success(result.data.message)
         } else {
           error(result.data.message)
@@ -103,8 +105,8 @@ export default function AdminAccMng() {
         try {
           const result = await apis.usersMngApiModule.resetPW(userId)
           if (result.status == 200) {
+            await apis.adminApiModule.record({id:adminStore?.id,content:`Khôi phục mật khẩu cho tài khoản người dùng ${userEmail}`,operator:adminStore?.username})
             success(result.data.message)
-            console.log(result.data.data);
           } else {
             error(result.data.message)
           }
@@ -190,7 +192,7 @@ export default function AdminAccMng() {
           key: 'action',
           render: (record) =>
               <Space size="middle">
-                  <Button type="primary" danger={record.status == true} size={"small"} onClick={() => { handleLock({ userId: record.id, userStatus: record.status }) }}>
+                  <Button type="primary" danger={record.status == true} size={"small"} onClick={() => { handleLock({ userId: record.id, userStatus: record.status ,userName:record.email}) }}>
                       {record.status ? "Khoá" : "Mở Khoá"}
                   </Button>
                   <ModalForm<{
@@ -223,6 +225,7 @@ export default function AdminAccMng() {
                             try {
                               const result = await apis.usersMngApiModule.updatePhone(record.id,values.phone)
                               if (result.status == 200) {
+                                await apis.adminApiModule.record({id:adminStore?.id,content:`Cập nhật số điện thoại ${values.phone} cho tài khoản người dùng ${record.email}}`,operator:adminStore?.username})
                                 success(result.data.message)
                                 getPageUserList()
                                 return true
@@ -294,6 +297,7 @@ export default function AdminAccMng() {
             <div className="table-container">
                 <Table
                     columns={columns}
+                    rowKey={"id"}
                     pagination={{ position: ["bottomLeft"], pageSize: 10, size: 'default', onChange: handlePage, total: resultCount }}
                     dataSource={data}
                 />

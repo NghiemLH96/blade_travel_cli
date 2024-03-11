@@ -84,5 +84,8 @@ export const adminProductsApiModule = {
     },
     deleteMadeBy:async function (madeById:number){
       return await axios.delete(import.meta.env.VITE_PROTOCOL+import.meta.env.VITE_HOST+`/api/v1/admin-products/made-by?id=${madeById}`)
-    }   
+    },
+    setBestSeller:async function(item:{id:number,bestSeller:boolean}){
+      return await axios.patch(import.meta.env.VITE_PROTOCOL+import.meta.env.VITE_HOST+`/api/v1/admin-products/set-BS`,item)
+    }
 }

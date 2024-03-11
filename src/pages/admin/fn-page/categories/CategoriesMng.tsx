@@ -4,9 +4,11 @@ import { useEffect, useState } from 'react';
 import { apis } from '@/service/apis';
 import { ModalForm, ProForm, ProFormText } from '@ant-design/pro-components';
 import { PlusOutlined } from '@ant-design/icons';
+import { StoreType } from '@/store';
+import { useSelector } from 'react-redux';
 
 export default function CategoriesMng() {
-
+    const adminStore = useSelector((store: StoreType) => store.adminStore).data
     useEffect(() => {
         handleGetCategories()
     }, [])
@@ -95,7 +97,7 @@ export default function CategoriesMng() {
     }
 
     //Thay đổi trạng thái
-    const changeCategoryStatus = (data: { id: number, status: boolean }) => {
+    const changeCategoryStatus = (data: { id: number, status: boolean , categoryName:string }) => {
         try {
             Modal.confirm({
                 title: 'Xác nhận thay đổi trạng thái',
@@ -103,6 +105,7 @@ export default function CategoriesMng() {
                 onOk: async () => {
                     const result = await apis.adminProductsApiModule.changeCategoryStatus(data)
                     if (result.status == 200) {
+                        await apis.adminApiModule.record({id:adminStore?.id,content:`${data.status ? 'Tạm khoá':'Kích hoạt'} thể loại ${data.categoryName}`,operator:adminStore?.username})
                         message.success(result.data.message)
                         handleGetCategories()
                     }
@@ -120,7 +123,7 @@ export default function CategoriesMng() {
     }
 
     //Xoá chất liệu
-    const handleDelete = (data: { id: number }) => {
+    const handleDelete = (data: { id: number ,categoryName:string}) => {
         Modal.confirm({
             title: "Xác nhận xoá",
             content: "Bạn chắc là muốn xoá thể loại này chứ?",
@@ -128,6 +131,7 @@ export default function CategoriesMng() {
                 try {
                     const result = await apis.adminProductsApiModule.deleteCategory(data.id)
                     if (result.status == 200) {
+                        await apis.adminApiModule.record({id:adminStore?.id,content:`Đã xoá thể loại ${data.categoryName}`,operator:adminStore?.username})
                         message.success(result.data.message)
                     } else {
                         message.warning(result.data.message)
@@ -245,9 +249,7 @@ export default function CategoriesMng() {
     };
 
     const handleAddAvatar: UploadProps['onChange'] = (info) => {
-        if (info.file.status === 'done') {
             setAddNewAvatar(info.fileList[0].originFileObj)
-        }
     };
 
     const handleRemoveAvatar: UploadProps['onRemove'] = () => {
@@ -326,6 +328,7 @@ export default function CategoriesMng() {
                                 console.log(result);
                                 
                                 if (result.status == 200) {
+                                    await apis.adminApiModule.record({id:adminStore?.id,content:`Thêm thể loại mới ${values.categoryName}}`,operator:adminStore?.username})
                                     message.success(result.data.message)
                                     handleGetCategories()
                                     return true
@@ -355,6 +358,7 @@ export default function CategoriesMng() {
                                 defaultFileList={[]}
                                 onChange={handleAddAvatar}
                                 onRemove={handleRemoveAvatar}
+                                beforeUpload={()=>false}
                                 maxCount={1}
                             >
                                 <Button >Upload</Button>

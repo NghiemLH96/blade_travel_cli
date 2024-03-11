@@ -7,6 +7,9 @@ export const adminApiModule = {
     ,
     checkLogin:async function(token:string){
         return await axios.post(import.meta.env.VITE_PROTOCOL+import.meta.env.VITE_HOST+"/api/v1/admins/check-login",{token})
+    },
+    record:async function(operateInfo:{id?:number,content:string,operator?:string}){
+        return await axios.post(import.meta.env.VITE_PROTOCOL+import.meta.env.VITE_HOST+"/api/v1/admins/record",operateInfo)
     }
     ,
     changeUserStatus:async function(user:{userId:number,userStatus:boolean}){
@@ -23,5 +26,8 @@ export const adminApiModule = {
     ,
     search:async function(searchOption:{status:boolean|null,email:string|null,phone:string|null,currentPage:number,pageSize:number}){
         return await axios.post(import.meta.env.VITE_PROTOCOL+import.meta.env.VITE_HOST+`/api/v1/admins-users/users-search`,searchOption)
+    },
+    getRecord:async function(searchOperator:string,current:number,pageSize:number){
+        return await axios.get(import.meta.env.VITE_PROTOCOL+import.meta.env.VITE_HOST+`/api/v1/admins/record?operator=${searchOperator}&current=${current}&size=${pageSize}`)
     }
 }

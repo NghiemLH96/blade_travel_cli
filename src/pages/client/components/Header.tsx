@@ -1,17 +1,28 @@
 import { useNavigate } from 'react-router-dom'
 import { useEffect, useRef, useState } from 'react'
-import { Button, Carousel, Drawer, Form, Modal, message } from 'antd';
+import { Button, Drawer, Form, Modal, Upload, UploadProps, message } from 'antd';
 import './scss/header.scss'
-import { StoreType } from '@/store/store';
-import { useSelector } from 'react-redux';
+import { StoreType, store } from '@/store';
+import { useDispatch, useSelector } from 'react-redux';
 import { apis } from '@/service/apis';
 import modal from 'antd/es/modal';
 import { ExclamationCircleOutlined } from '@ant-design/icons';
 import { ModalForm, ProForm, ProFormSelect, ProFormText } from '@ant-design/pro-components';
+import { User, userAction } from '@/store/slices/loginDetail.slice';
+import HeaderCarousel from './header-carousel/HeaderCarousel';
 
 
 
 export default function Header() {
+
+
+    const [userDetail, setUserDetail] = useState<User | null>()
+    const userStore = useSelector((store: StoreType) => store.userStore)
+    const dispatch = useDispatch()
+    useEffect(() => {
+        setUserDetail(userStore.data)
+    }, [userStore.data])
+
     //ANTD warning notification
     const { confirm } = Modal;
     const showConfirm = (title: string) => {
@@ -19,23 +30,14 @@ export default function Header() {
             title,
             onOk() {
                 localStorage.removeItem('token')
-                setUserDetail(null)
+                dispatch(userAction.removeStore(null))
             },
             onCancel() {
 
             },
         });
     };
-    const [userDetail, setUserDetail] = useState<{ id: number, avatar: string, wallet: number } | null>()
-    const loginUser = useSelector((store: StoreType) => store.userStore)
 
-    useEffect(() => {
-        if (!loginUser.data && !loginUser.loading) {
-            localStorage.removeItem("token")
-            window.location.href = "/auth"
-        }
-        setUserDetail(loginUser.data)
-    }, [loginUser.data, loginUser.loading])
 
 
     const navigate = useNavigate()
@@ -60,11 +62,6 @@ export default function Header() {
     const [open, setOpen] = useState(false);
 
     const [cart, setCart] = useState([])
-    useEffect(() => {
-        console.log(cart);
-
-    }, [cart])
-
     const getCartFn = async () => {
         try {
             if (localStorage.getItem('token')) {
@@ -147,9 +144,20 @@ export default function Header() {
         })
     }
     // Proform 
+    const [newAvatar, setNewAvatar] = useState<any>()
+
+    const handleEditAddAvt: UploadProps['onChange'] = (info) => {
+        setNewAvatar(info.fileList[0].originFileObj)
+    };
+
+    const handleEditRmvAvt: UploadProps['onRemove'] = () => {
+        setNewAvatar(null);
+    };
+
     const [formRef] = Form.useForm<{
         address: string,
-        paymentMethod: string
+        paymentMethod: string,
+        phone: string
     }>();
     const waitTime = (time: number = 100) => {
         return new Promise((resolve) => {
@@ -159,53 +167,15 @@ export default function Header() {
         });
     };
 
+    const [editPassForm] = Form.useForm<{
+        newPassword: string,
+        oldPassword: string
+    }>();
+
     return (
         <header>
             <div className='header_carousel'>
-                <Carousel autoplay effect="fade">
-                    <div className='slide_container'>
-                        <img className='slideImg banner1' src="https://firebasestorage.googleapis.com/v0/b/blade-firebase.appspot.com/o/assets%2Fphoto-1528629297340-d1d466945dc5.avif?alt=media&token=84918ca7-6e27-4ee0-925e-2e2414274b2e" alt="" />
-                        <div className='bannerSlogan banner1'>
-                            <h1>Chạm tới tự do</h1>
-                            <p>Khám phá thế giới trên bánh xe của bạn.</p>
-                        </div>
-                        <div className='bannerBtn banner1'>
-                            <button onClick={() => { navigate("/products") }}>Khám phá ngay</button>
-                        </div>
-                    </div>
-                    <div className='slide_container'>
-                        <img className='slideImg banner2' src="https://firebasestorage.googleapis.com/v0/b/blade-firebase.appspot.com/o/assets%2Fman-riding-mountain-bike-low-angle.jpg?alt=media&token=50994900-4f49-4620-b938-0e12edc9a894" alt="" />
-                        <div className='bannerSlogan banner2'>
-                            <h1>Phiêu lưu bất tận</h1>
-                            <p>Khám phá nhiều hơn, đi xa hơn - cùng với xe đạp của bạn.</p>
-                        </div>
-                        <div className='bannerBtn banner2'>
-                            <button onClick={() => { navigate("/products") }}>Khám phá ngay</button>
-                        </div>
-                    </div>
-                    <div className='slide_container'>
-                        <img className='slideImg banner3' src="https://firebasestorage.googleapis.com/v0/b/blade-firebase.appspot.com/o/assets%2Fyoung-sports-man-bicycle-european-city-sports-urban-environments.jpg?alt=media&token=03071b15-8675-43d6-a127-ff5bebfcf980" alt="" />
-                        <div className='bannerSlogan banner3'>
-                            <h1>Sống theo cách riêng</h1>
-                            <p>Xe đạp không chỉ là phương tiện di chuyển, mà còn là cách sống.</p>
-                        </div>
-                        <div className='bannerBtn banner3'>
-                            <button onClick={() => { navigate("/products") }}>Khám phá ngay</button>
-                        </div>
-                    </div>
-                    <div>
-                        <div className='slide_container'>
-                            <img className='slideImg banner4' src="https://firebasestorage.googleapis.com/v0/b/blade-firebase.appspot.com/o/assets%2Fkenny-eliason-PSo2G2lkHPQ-unsplash.jpg?alt=media&token=060ba464-d522-4ecc-8f44-102b78a57f15" alt="" />
-                            <div className='bannerSlogan banner4'>
-                                <h1>Khơi dậy hành trình</h1>
-                                <p>Vững bước đi xa từ những vòng bánh đầu tiên.</p>
-                            </div>
-                            <div className='bannerBtn banner4'>
-                                <button onClick={() => { navigate("/products") }}>Khám phá ngay</button>
-                            </div>
-                        </div>
-                    </div>
-                </Carousel>
+                <HeaderCarousel />
             </div>
             <div className='header_top'>
                 <section className='header_top_left'>
@@ -286,7 +256,8 @@ export default function Header() {
                                     <div className='paymentBtn'>
                                         <ModalForm<{
                                             address: string,
-                                            paymentMethod: string
+                                            paymentMethod: string,
+                                            phone: string,
                                         }>
                                             title="Xác nhận thanh toán"
                                             trigger={
@@ -304,6 +275,50 @@ export default function Header() {
                                             submitTimeout={2000}
                                             onFinish={async (values) => {
                                                 await waitTime(2000);
+                                                switch (values.paymentMethod) {
+                                                    case 'cod':
+                                                        try {
+                                                            const result = await apis.productCliApi.checkOutCOD({
+                                                                id: (userDetail as any).id,
+                                                                email: (userDetail as any).email,
+                                                                phone: values.phone,
+                                                                address: values.address
+                                                            })
+                                                            if (result.status == 200) {
+                                                                message.success(result.data.message)
+                                                                getCartFn();
+                                                                return true
+                                                            } else {
+                                                                message.error("Thanh toán thất bại")
+                                                            }
+                                                        } catch (error) {
+                                                            message.error("Thanh toán thất bại")
+                                                        }
+                                                        break;
+                                                    case 'wallet':
+                                                        try {
+                                                            const result = await apis.productCliApi.checkOutWallet({
+                                                                id: (userDetail as any).id,
+                                                                email: (userDetail as any).email,
+                                                                phone: values.phone,
+                                                                address: values.address
+                                                            })
+                                                            if (result.status == 200) {
+                                                                message.success(result.data.message)
+                                                                store.dispatch(userAction.fetchUser())
+                                                                getCartFn();
+                                                                return true
+                                                            } else {
+                                                                message.warning(result.data.message)
+                                                            }
+                                                        } catch (error) {
+                                                            message.error("Thanh toán thất bại")
+                                                        }
+                                                        break;
+                                                    default:
+                                                        break;
+                                                }
+
                                             }}
                                         >
                                             <ProForm.Group>
@@ -314,12 +329,24 @@ export default function Header() {
                                                     placeholder="Địa chỉ"
                                                     required
                                                 />
+                                                <ProFormText
+                                                    width="md"
+                                                    name="phone"
+                                                    label="Số điện thoại"
+                                                    placeholder="Số điện thoại"
+                                                    required
+                                                />
                                                 <ProFormSelect
                                                     initialValue={null}
                                                     width="md"
                                                     options={
                                                         [{ value: 'cod', label: "Thanh toán khi nhận hàng" },
-                                                        { value: 'wallet', label: "Thanh toán ví" }]
+                                                        {
+                                                            value: 'wallet', label: `Thanh toán ví số dư còn : ${userDetail?.wallet.toLocaleString('vi-VN', {
+                                                                style: 'currency',
+                                                                currency: 'VND',
+                                                            })}`
+                                                        }]
                                                     }
                                                     required
                                                     name="paymentMethod"
@@ -330,6 +357,109 @@ export default function Header() {
                                     </div>
                                 }
                             </Drawer>
+                            {userDetail?.id && <ModalForm<{}>
+                                title="Thêm mới"
+                                trigger={
+                                    <span>Thay đổi hình đại diện</span>
+                                }
+                                variant="filled"
+                                modalProps={{
+                                    destroyOnClose: true,
+                                }}
+                                submitTimeout={2000}
+                                onFinish={async () => {
+                                    await waitTime(2000);
+                                    try {
+                                        let formData = new FormData
+                                        formData.append("id", JSON.stringify(userDetail?.id))
+                                        formData.append("avatar", newAvatar as any)
+                                        const result = await apis.userApiModule.uploadAvatar(formData)
+                                        if (result.status == 200) {
+                                            message.success(result.data.message)
+                                            localStorage.setItem('token', result.data.token)
+                                            dispatch(userAction.createStore(result.data.data))
+                                            return true
+                                        } else {
+                                            message.error(result.data.message)
+                                        }
+                                    } catch (error) {
+                                        message.error('Chỉnh sửa thất bại')
+                                    }
+
+                                }}
+                            >
+                                <ProForm.Group style={{ margin: "10px 0px" }}>
+                                    <label style={{ width: '200px', display: "inline-block" }} htmlFor="">Ảnh đại diện</label>
+                                    <Upload
+                                        action="https://run.mocky.io/v3/435e224c-44fb-4773-9faf-380c5e6a2188"
+                                        listType="picture"
+                                        defaultFileList={[]}
+                                        beforeUpload={() => false}
+                                        onChange={handleEditAddAvt}
+                                        onRemove={handleEditRmvAvt}
+                                        maxCount={1}
+                                    >
+                                        <Button >Upload</Button>
+                                    </Upload>
+                                </ProForm.Group>
+                            </ModalForm>}
+
+                            {userDetail?.id && <span>Đặt lại mật khẩu</span>}
+                            <ModalForm<{
+                                newPassword: string,
+                                oldPassword: string
+                            }>
+                                title="Thêm mới"
+                                trigger={
+                                    <span>Đặt lại mật khẩu</span>
+                                }
+                                form={editPassForm}
+                                autoFocusFirstInput
+                                variant="filled"
+                                modalProps={{
+                                    destroyOnClose: true,
+                                }}
+                                submitTimeout={2000}
+                                onFinish={async (values) => {
+                                    await waitTime(2000);
+                                    try {
+                                        if (userDetail != null) {
+                                            const result = await apis.userApiModule.updatePassword({userId:userDetail.id,old:values.oldPassword,new:values.newPassword})
+                                        if (result.status==200) {
+                                            dispatch(userAction.createStore(result.data.data))
+                                            localStorage.setItem('token',result.data.token)
+                                            message.success(result.data.message)
+                                            return true
+                                        }else{
+                                            message.error(result.data.message)
+                                        }
+                                        }else{
+                                            throw false
+                                        }
+                                    } catch (err) {
+                                        message.error('Thay đổi mật khẩu thất bại , mời thử lại sau')
+                                    }
+                                }}
+                            >
+                                <ProForm.Group style={{ margin: "10px 0px" }}>
+                                    <ProFormText
+                                        width="md"
+                                        name="oldPassword"
+                                        label="Nhập mật khẩu cũ"
+                                        tooltip="Tối đa 16 ký tự"
+                                        placeholder="Mật khẩu cũ"
+                                        required
+                                    />
+                                    <ProFormText
+                                        width="md"
+                                        name="newPassword"
+                                        label="Nhập mật khẩu mới"
+                                        tooltip="Tối đa 16 ký tự"
+                                        placeholder="Mật khẩu mới"
+                                        required
+                                    />
+                                </ProForm.Group>
+                            </ModalForm>
                             {userDetail?.id &&
                                 <span onClick={() => {
                                     showConfirm("Bạn chắc chắn muốn đăng xuất chứ?")

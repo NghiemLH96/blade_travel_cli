@@ -1,6 +1,4 @@
-import lazyFn from "./lazy";
-import firebase from "./firebase";
+import {lazyFn} from "./lazy";
 export default {
     lazyFn,
-    firebase
 }

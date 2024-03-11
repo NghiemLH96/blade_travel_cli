@@ -4,9 +4,11 @@ import { useEffect, useState } from "react"
 import type { TableProps, UploadFile, UploadProps } from 'antd';
 import '../../scss/fnPage.scss'
 import { ModalForm, ProForm, ProFormMoney, ProFormSelect, ProFormText } from "@ant-design/pro-components";
+import { useSelector } from "react-redux";
+import { StoreType } from "@/store";
 
 export default function AdminProductMng() {
-
+  const adminStore = useSelector((store: StoreType) => store.adminStore).data
   const [renderProductList, setRenderProductList] = useState<Array<any>>([])
   const [categoriesList, setCategoriesList] = useState<Array<any>>([])
   const [materialList, setMaterialList] = useState<Array<any>>([])
@@ -168,13 +170,14 @@ export default function AdminProductMng() {
   }
 
   const { confirm } = Modal;
-  const handleStatusToggle = (item: { id: number, status: boolean }) => {
+  const handleStatusToggle = (item: { id: number, status: boolean ,productName:string }) => {
     confirm({
       title: 'Thay đổi trạng thái',
       content: `Bạn chắc chắn muốn ${item.status ? 'khoá' : 'mở khoá'} sản phẩm này chứ`,
       async onOk() {
         const result = await apis.adminProductsApiModule.changeStatus(item)
         if (result.status == 200) {
+          await apis.adminApiModule.record({id:adminStore?.id,content:`${item.status ? "Tạm khoá" : "Kích hoạt"} sản phẩm ${item.productName}`,operator:adminStore?.username})
           success(result.data.message)
         } else {
           error(result.data.message)
@@ -202,7 +205,7 @@ export default function AdminProductMng() {
 
   //Thêm sản phẩm
 
-  const handleDelete = (item: { id: number }) => {
+  const handleDelete = (item: { id: number , productName: string }) => {
     confirm(
       {
         title: 'Xác nhận xoá?',
@@ -210,6 +213,7 @@ export default function AdminProductMng() {
         async onOk() {
           const result = await apis.adminProductsApiModule.delete(item)
           if (result.status == 200) {
+            await apis.adminApiModule.record({id:adminStore?.id,content:`Đã xoá sản phẩm ${item.productName} ID:${item.id}`,operator:adminStore?.username})
             success(result.data.message)
           } else {
             error(result.data.error)
@@ -267,7 +271,7 @@ export default function AdminProductMng() {
   }>();
   const [uploadImg, setUploadImg] = useState<UploadFile[]>([])
 
-  const handleUploadPics = async (id: number) => {
+  const handleUploadPics = async (id: number,productName:string) => {
     if (uploadImg.length != 0) {
       let originObjImgList = uploadImg.map(item => {
         return item.originFileObj
@@ -280,6 +284,7 @@ export default function AdminProductMng() {
       try {
         const result = await apis.adminProductsApiModule.uploadImgs(uploadAvatarFormData)
         if (result.status == 200) {
+          await apis.adminApiModule.record({id:adminStore?.id,content:`Đăng tải ảnh chi tiết mới cho sản phẩm ${productName}`,operator:adminStore?.username})
           message.success(result.data.message)
           return true
         } else {
@@ -298,9 +303,7 @@ export default function AdminProductMng() {
   };
 
   const handleUploadImgs: UploadProps['onChange'] = (info) => {
-    if (info.file.status === 'done') {
       setUploadImg(info.fileList)
-    }
   };
 
   const handleRemoveImgs: UploadProps['onRemove'] = (file) => {
@@ -309,6 +312,33 @@ export default function AdminProductMng() {
     newFileList.splice(index, 1);
     setUploadImg(newFileList);
   }
+
+
+  const handleBestSeller=async(item:{id:number,bestSeller:boolean , productName:string})=>{
+    confirm(
+      {
+        title: 'Xác nhận',
+        content: `Bạn chắc chắn muốn thay đổi trạng thái bestSeller cho sản phẩm này chứ?`,
+        async onOk() {
+          try {
+            const result = await apis.adminProductsApiModule.setBestSeller(item)
+            if (result.status==200) {
+              await apis.adminApiModule.record({id:adminStore?.id,content:`${item.bestSeller ? "Huỷ thiết lập" : "Thiết lập"} trạng thái BestSeller cho sản phẩm ${item.productName}`,operator:adminStore?.username})
+              message.success(result.data.message)
+            }else{
+              message.error(result.data.message)
+            }
+          } catch (error) {
+            message.error("Server bận mời thử lại sau")
+          }
+          getPageProductList()
+        },
+        okText: 'Xác định',
+        cancelText: 'Huỷ'
+      }
+    )
+  }
+
 
   const columns: TableProps<DataType>['columns'] = [
     {
@@ -388,7 +418,10 @@ export default function AdminProductMng() {
       title: 'Action',
       key: 'action',
       render: (record) =>
-        <Space size="small">
+        <Space size="small" style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr'}}>
+          <Button style={{ width: "80px" }} type="primary" danger={record.bestSeller == true} size={"small"} onClick={() => { handleBestSeller(record) }}>
+            {!record.bestSeller ? "Bật BS" : "Tắt BS"}
+          </Button>
           <Button style={{ width: "75px" }} type="primary" danger={record.status == true} size={"small"} onClick={() => { handleStatusToggle(record) }}>
             {record.status ? "Khoá" : "Mở Khoá"}
           </Button>
@@ -423,6 +456,7 @@ export default function AdminProductMng() {
               try {
                 const result = await apis.adminProductsApiModule.updateDetail(productDetail)
                 if (result.status == 200) {
+                  await apis.adminApiModule.record({id:adminStore?.id,content:`Cập nhật thông tin mới cho sản phẩm ${record.productName} ID:${record.id}`,operator:adminStore?.username})
                   message.success(result.data.message)
                   getPageProductList()
                   return true
@@ -515,7 +549,7 @@ export default function AdminProductMng() {
             submitTimeout={2000}
             onFinish={async () => {
               await waitTime(2000);
-              const flag = await handleUploadPics(record.id)
+              const flag = await handleUploadPics(record.id,record.productName)
               if (flag) {
                 return true
               }
@@ -528,6 +562,7 @@ export default function AdminProductMng() {
                 defaultFileList={[]}
                 onChange={handleUploadImgs}
                 onRemove={handleRemoveImgs}
+                beforeUpload={()=>false}
                 multiple
                 maxCount={3}
               >
@@ -555,9 +590,7 @@ export default function AdminProductMng() {
   const [addNewAvatar, setAddNewAvatar] = useState<UploadFile | null>()
 
   const handleAddAvatar: UploadProps['onChange'] = (info) => {
-    if (info.file.status === 'done') {
       setAddNewAvatar(info.fileList[0])
-    }
   };
 
   const handleRemoveAvatar: UploadProps['onRemove'] = () => {
@@ -705,6 +738,7 @@ export default function AdminProductMng() {
                 try {
                   const result = await apis.adminProductsApiModule.createNew(productFormData)
                   if (result.status == 200) {
+                    await apis.adminApiModule.record({id:adminStore?.id,content:`Thêm sản phẩm mới ${values.productName}`,operator:adminStore?.username})
                     success(result.data.message)
                     getPageProductList()
                     return true
@@ -728,6 +762,7 @@ export default function AdminProductMng() {
                 action="https://run.mocky.io/v3/435e224c-44fb-4773-9faf-380c5e6a2188"
                 listType="picture"
                 defaultFileList={[]}
+                beforeUpload={()=>false}
                 onChange={handleAddAvatar}
                 onRemove={handleRemoveAvatar}
                 maxCount={1}

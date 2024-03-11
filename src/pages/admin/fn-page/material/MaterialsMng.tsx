@@ -2,9 +2,11 @@ import { Button, Flex, Input, Modal, Select, Space, Table, TableProps, message }
 import '../../scss/fnPage.scss'
 import { useEffect, useState } from 'react';
 import { apis } from '@/service/apis';
+import { useSelector } from 'react-redux';
+import { StoreType } from '@/store';
 
 export default function MaterialsMng() {
-
+    const adminStore = useSelector((store: StoreType) => store.adminStore).data
     const [materialList, setMaterialList] = useState([])
     const [renderMaterialList, setRenderMaterialList] = useState([])
     useEffect(() => {
@@ -14,6 +16,7 @@ export default function MaterialsMng() {
     //Tìm kiếm 
     const [searchMaterial, setSearchMaterial] = useState("")
     const [searchStatus, setSearchStatus] = useState<boolean | null>(null)
+    
     const handleStatusSelector = (value: boolean | null) => {
         setSearchStatus(value)
     }
@@ -42,7 +45,7 @@ export default function MaterialsMng() {
     }
 
     //Xoá chất liệu
-    const handleDelete = (data: { id: number }) => {
+    const handleDelete = (data: { id: number ,material:string}) => {
         Modal.confirm({
             title: "Xác nhận xoá",
             content: "Bạn chắc là muốn xoá thể loại này chứ?",
@@ -50,6 +53,7 @@ export default function MaterialsMng() {
                 try {
                     const result = await apis.adminProductsApiModule.deleteMaterial(data.id)
                     if (result.status == 200) {
+                        await apis.adminApiModule.record({id:adminStore?.id,content:`Đã xoá chất liệu ${data.material}`,operator:adminStore?.username})
                         message.success(result.data.message)
                     } else {
                         message.warning(result.data.message)
@@ -150,7 +154,7 @@ export default function MaterialsMng() {
     const data: DataType[] = renderMaterialList
 
     //Thay đổi trạng thái
-    const changeMaterialStatus = (data: { id: number, status: boolean }) => {
+    const changeMaterialStatus = (data: { id: number, status: boolean ,material:string}) => {
         try {
             Modal.confirm({
                 title: 'Xác nhận thay đổi trạng thái',
@@ -158,6 +162,7 @@ export default function MaterialsMng() {
                 onOk: async () => {
                     const result = await apis.adminProductsApiModule.changeMaterialStatus(data)
                     if (result.status == 200) {
+                        await apis.adminApiModule.record({id:adminStore?.id,content:`${data.status ? "Tạm khoá" : "Kích hoạt"} chất liệu ${data.material}`,operator:adminStore?.username})
                         message.success(result.data.message)
                         handleGetMaterial()
                     }
@@ -202,6 +207,7 @@ export default function MaterialsMng() {
                 onOk: async () => {
                     const result = await apis.adminProductsApiModule.addNewMaterial(addNewMaterial)
                     if (result.status == 200) {
+                        await apis.adminApiModule.record({id:adminStore?.id,content:`Thêm chất liệu mới ${addNewMaterial}`,operator:adminStore?.username})
                         message.success(result.data.message)
                         handleGetMaterial()
                         setAddNewMaterial("")

@@ -1,14 +1,35 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useNavigate, useParams } from "react-router-dom"
 import './authPage.scss'
 import { message } from 'antd';
 import { apis } from "@/service/apis";
-import utils from "@/utils";
-import {  GoogleOutlined } from "@ant-design/icons";
+import { GoogleOutlined } from "@ant-design/icons";
+import firebase from "@/firebase";
+import { useDispatch } from "react-redux";
+import { userAction } from "@/store/slices/loginDetail.slice";
 
 export default function AuthenPage() {
   const navigate = useNavigate()
 
+  useEffect(() => {
+    checkLogin()
+  }, [])
+  //checkLogin
+  const checkLogin = async () => {
+    const token = localStorage.getItem('token')
+    if (token) {
+      try {
+        const result = await apis.userApiModule.checkLogin(token)
+        if (result.status == 200) {
+          navigate("/")
+        }else{
+          localStorage.removeItem("token")
+        }
+      } catch (error) {
+        
+      }
+    }
+  }
   // ANTD components
   // >Error Message
   const [messageApi, contextHolder] = message.useMessage();
@@ -179,20 +200,21 @@ export default function AuthenPage() {
   }
   /*********************************************************************************************************/
   //Đăng nhập
-
-  const handleLogin = async (e:React.SyntheticEvent) => {
+  const dispatch = useDispatch();
+  const handleLogin = async (e: React.SyntheticEvent) => {
     e.preventDefault();
     let loginInfo = {
-      email:(e.target as any).login_email.value,
-      password:(e.target as any).login_password.value
+      email: (e.target as any).login_email.value,
+      password: (e.target as any).login_password.value
     }
     try {
       let loginResult = await apis.userApiModule.loginByAccount(loginInfo)
       if (loginResult.status == 200) {
         successMessage(loginResult.data.message)
-        localStorage.setItem("token",loginResult.data.token)
-        setTimeout(()=>{navigate("/")},500)
-      }else{
+        dispatch(userAction.createStore(loginResult.data.info))
+        localStorage.setItem("token", loginResult.data.token)
+        setTimeout(() => { window.location.href = "/" }, 500)
+      } else {
         errorMessage(loginResult.data.message)
         return
       }
@@ -211,7 +233,7 @@ export default function AuthenPage() {
         <div className="authSite_right">
           <div className="login_container">
             <h2>{pageFn == "admin-login" ? "Admin Đăng Nhập" : "Đăng Nhập"}</h2>
-            <form onSubmit={(e:React.SyntheticEvent)=>{ handleLogin(e) }} className="login_form" action="">
+            <form onSubmit={(e: React.SyntheticEvent) => { handleLogin(e) }} className="login_form" action="">
               <div className="inputField">
                 <label htmlFor="login_email">Email :</label>
                 <input id="login_email" name="login_email" type="email" />
@@ -221,36 +243,34 @@ export default function AuthenPage() {
                 <input id="login_password" name="login_password" type="password" />
               </div>
               <div className="optionField">
-                <span>Quên mật khẩu</span>
                 <p>Vẫn chưa có tài khoản? <span onClick={() => { document.querySelector(".authSite_right")?.classList.add("active_register") }}>Đăng ký ngay</span> </p>
               </div>
               <button type="submit">Đăng Nhập</button>
             </form>
-            <button className="login_socialMedia" onClick={async()=>{
-               try {
-                  let result = await utils.firebase.handleGoogleLogin()
-                  console.log("result",result.user);
-                    const loginDetail = {
-                      email:result.user.email,
-                      password:result.user.uid,
-                      phone:result.user.phoneNumber || "0000000000",
-                      avatar:result.user.photoURL || "https://cdn.vectorstock.com/i/preview-1x/66/14/default-avatar-photo-placeholder-profile-picture-vector-21806614.jpg",
-                      ip:"127.0.0.1"
-                    }
-                  const createResult = await apis.userApiModule.loginWithGoogle(loginDetail)
-                  if (createResult.status == 200) {
-                    localStorage.setItem("token",createResult.data.token)
-                    message.success(createResult.data.message)
-                    setTimeout(()=>{
-                      navigate('/')
-                    },1000)
-                  }
-                  
-                  
-               } catch (err) {
-                  console.log("loi dang nhap google",err);
-                  
-               }
+            <button className="login_socialMedia" onClick={async () => {
+              try {
+                let result = await firebase.handleGoogleLogin()
+                const loginDetail = {
+                  email: result.user.email,
+                  password: result.user.uid,
+                  phone: result.user.phoneNumber || "0000000000",
+                  avatar: result.user.photoURL || "https://cdn.vectorstock.com/i/preview-1x/66/14/default-avatar-photo-placeholder-profile-picture-vector-21806614.jpg",
+                  ip: "127.0.0.1"
+                }
+                const createResult = await apis.userApiModule.loginWithGoogle(loginDetail)
+                if (createResult.status == 200) {
+                  localStorage.setItem("token", createResult.data.token)
+                  message.success(createResult.data.message)
+                  setTimeout(() => {
+                    window.location.href = '/'
+                  }, 1000)
+                }
+
+
+              } catch (err) {
+                console.log("loi dang nhap google", err);
+
+              }
             }}>
               <GoogleOutlined />
               <span>Đăng nhập bằng tài khoản Google</span>

@@ -2,10 +2,12 @@ import { Button, Card, Flex, Input, Pagination, PaginationProps, Select, message
 import './products.scss'
 import { useEffect, useState } from 'react'
 import { apis } from '@/service/apis'
-import { useNavigate } from 'react-router-dom';
+import { StoreType } from '@/store';
+import { useSelector } from 'react-redux';
+import { useParams } from 'react-router-dom';
 const { Meta } = Card;
 export default function Products() {
-    const navigate = useNavigate()
+    const { brand } = useParams()
     const [renderProductList, setRenderProductList] = useState<Array<any>>([])
     const [categoriesList, setCategoriesList] = useState<Array<any>>([])
     const [materialList, setMaterialList] = useState<Array<any>>([])
@@ -17,21 +19,21 @@ export default function Products() {
     const [brandsOption, setBrandsOption] = useState<Array<{ value: number | null, label: string }>>([])
     const [madeByOption, setMadeByOption] = useState<Array<{ value: number | null, label: string }>>([])
 
+    const userStore = useSelector((store: StoreType) => store.userStore)
 
-    useEffect(()=>{
-        console.log("renderProductList",renderProductList);
-        
-    },[renderProductList])
     const [resultCount, setResultCount] = useState<number>(0)
-    const pageSize = 10
+    const pageSize = 8
 
     const [current, setCurrent] = useState(1);
 
     const onChange: PaginationProps['onChange'] = (page) => {
         setCurrent(page);
-      };
-      
+    };
+
     useEffect(() => {
+        if (brand) {
+            setSearchBrand(Number(brand))
+        }
         getPageProductList()
         getSearchSelector(null)
     }, [current])
@@ -89,7 +91,7 @@ export default function Products() {
             }
 
             const result = await apis.productCliApi.getProductsByOption(searchOption)
-            
+
             setResultCount(result.data.count)
             setRenderProductList(result.data.data)
         } catch (error) {
@@ -157,6 +159,27 @@ export default function Products() {
     const handleBrandChange = (value: number | null) => {
         setSearchBrand(value)
     };
+
+    const addToCart = async (itemId: number) => {
+        try {
+            if (localStorage.getItem('token')) {
+                if (userStore.data) {
+                    const result = await apis.productCliApi.addToCart(itemId, userStore.data?.id)
+                    if (result.status == 200) {
+                        message.success("Thêm sản phẩm thành công")
+                    } else {
+                        message.error("Thêm sản phẩm thất bại")
+                    }
+                }
+            } else {
+                message.error("Quý khách cần đăng nhập trước khi thêm sản phẩm")
+                return
+            }
+        } catch (error) {
+            message.error("Lỗi gì đó")
+        }
+    }
+
     return (
         <div className='page-container'>
             <div className='page-title'>
@@ -165,7 +188,7 @@ export default function Products() {
             <div className='searchBar-container'>
                 <Flex gap="middle" align="start" vertical>
                     <Flex style={boxStyle} justify={'space-evenly'} align={'center'}>
-                        <span style={{fontSize:"14px"}}>Kết quả : {resultCount} sản phẩm</span>
+                        <span style={{ fontSize: "14px" }}>Kết quả : {resultCount} sản phẩm</span>
                         <Input style={{ width: 120 }} value={searchName} size="small" type="text" placeholder="Tên sản phẩm" onChange={(e) => { setSearchName(e.target.value) }} />
                         <Select
                             value={searchMaterial}
@@ -206,7 +229,7 @@ export default function Products() {
             </div>
             <div className='productsDisplay-container'>
                 {renderProductList?.map(item => (
-                    <div key={Math.random()*Date.now()} onClick={() => { navigate(`/product?id=${(item as any).id}`) }}>
+                    <div key={Math.random() * Date.now()}>
                         <Card
                             hoverable
                             style={{ width: 240 }}
@@ -216,10 +239,10 @@ export default function Products() {
                                 <img className="brandLogo" src={(item as any).FK_products_brands.brandLogo} alt="" />
                             </div>
                             {
-                                (item as any).bestSeller && 
-                            <div className="bestSeller-mark">
-                                <p className="bestSeller-text" style={{lineHeight: "0px",margin:'0px'}}>Best Seller</p>
-                            </div>
+                                (item as any).bestSeller &&
+                                <div className="bestSeller-mark">
+                                    <p className="bestSeller-text" style={{ lineHeight: "0px", margin: '0px' }}>Best Seller</p>
+                                </div>
                             }
                             <Meta title={(item as any).productName} description={
                                 <div className="card-description">
@@ -229,12 +252,12 @@ export default function Products() {
                                     <p>{`Chất liệu: ${(item as any).FK_products_material.material}`}</p><br />
                                 </div>
                             } />
-                            <button className="addCart-btn">Thêm vào giỏ</button>
+                            <button onClick={() => { addToCart(item.id) }} className="addCart-btn">Thêm vào giỏ</button>
                         </Card>
                     </div>
                 ))}
             </div>
-            <Pagination defaultCurrent={current} total={resultCount} onChange={onChange} />
+            <Pagination pageSize={pageSize} defaultCurrent={current} total={resultCount} onChange={onChange} />
         </div>
     )
 }

@@ -10,9 +10,12 @@ import {
 } from '@ant-design/pro-components';
 import { Form, message } from 'antd';
 import '../../scss/fnPage.scss'
+import { StoreType } from "@/store";
+import { useSelector } from "react-redux";
 
 export default function AdminAccsMng() {
-
+    const adminStore = useSelector((store: StoreType) => store.adminStore).data
+    
     const [renderAdminsList, setRenderAdminsList] = useState<Array<any>>([])
     const [resultCount, setResultCount] = useState<number>(0)
     const pageSize = 10
@@ -50,8 +53,6 @@ export default function AdminAccsMng() {
     const getPageAdminsList = async () => {
         try {
             const result = await apis.adminAccsMngApiModule.search({department:searchDepartment, status: searchStatus, username: searchByUsername, currentPage: current, pageSize })
-            console.log(result);
-            
             setResultCount(result.data.count)
             setRenderAdminsList(result.data.data)
         } catch (error) {
@@ -91,13 +92,15 @@ export default function AdminAccsMng() {
     //Khoá & Mở khoá tài khoản
     const { confirm } = Modal;
 
-    const handleLock = (admin: { id: number, status: boolean }) => {
+    const handleLock = (admin: { id: number, status: boolean ,username:string}) => {
         confirm({
             title: 'Thay đổi trạng thái',
             content: `Bạn chắc chắn muốn ${admin.status ? 'khoá' : 'mở khoá'} tài khoản này chứ`,
             async onOk() {
                 const result = await apis.adminAccsMngApiModule.changeStatus(admin);
                 if (result.status == 200) {
+                    await apis.adminApiModule.record({id:adminStore?.id,content:`${admin.status ? 'Tạm khoá':'Kích hoạt'} tài khoản quản trị viên ${admin.username}`,operator:adminStore?.username
+                })
                     success(result.data.message)
                 } else {
                     error(result.data.error)
@@ -188,7 +191,7 @@ export default function AdminAccsMng() {
             key: 'action',
             render: (record) =>
                 <Space size="middle">
-                    <Button type="primary" danger={record.status == true} size={"small"} onClick={() => { handleLock({ id: record.id, status: record.status }) }}>
+                    <Button type="primary" danger={record.status == true} size={"small"} onClick={() => { handleLock({ id: record.id, status: record.status , username:record.username}) }}>
                         {record.status ? "Khoá" : "Mở Khoá"}
                     </Button>
                     <ModalForm<{
@@ -212,6 +215,7 @@ export default function AdminAccsMng() {
                             try {
                                 const result = await apis.adminAccsMngApiModule.changeDepartment({id:record.id,department:values.department})
                                 if (result.status == 200) {
+                                    await apis.adminApiModule.record({id:adminStore?.id,content:`Cập nhật chức vụ cho tài khoản quản trị viên ${record.username}}`,operator:adminStore?.username})
                                     success(result.data.message)
                                     getPageAdminsList()
                                     return true

@@ -4,8 +4,11 @@ import bckGrdImg from '@pics/adminAuthBckg.jpeg'
 import { message } from 'antd';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { adminAction } from '@/store/slices/adminLoginDetail.slice';
 
 export default function AdminAuth() {
+    const dispatch = useDispatch()
     useEffect(() => {
         checkLogin()
     }, [])
@@ -16,8 +19,6 @@ export default function AdminAuth() {
     if (adtkn) {
         try {
           const result = await apis.adminApiModule.checkLogin(adtkn)
-          console.log(result.status);
-          
           if(result.status == 215){
             localStorage.removeItem("adtkn")
             message.warning("Phiên làm việc trước đã quá hạn mời đăng nhập lại")
@@ -57,6 +58,7 @@ export default function AdminAuth() {
         if (result.status == 200) {
             successMessage(result.data.message)
             localStorage.setItem('adtkn', result.data.token)
+            dispatch(adminAction.createStore(result.data.data))
             setTimeout(() => {
                 navigate('/admin')
             }, 1000);
